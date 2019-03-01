@@ -5,7 +5,7 @@ import * as path from 'path'
 import { TextDecoder } from 'util';
 
 function with_editor(fn: (editor: vscode.TextEditor) => void){
-  let editor = vscode.window.activeTextEditor
+  let editor = vscode.window.activeTextEditor;
   if(!editor){
     vscode.window.showErrorMessage("No active text editor.");
   }else{
