@@ -1,6 +1,6 @@
 {
-	"name": "Terminal Run/CD",
-	"displayName": "terminal-run-cd",
+	"name": "terminal-run-cd",
+	"displayName": "Terminal Run/CD",
 	"description": "Changed directories and run scripts in the terminal across multiple languages.",
 	"version": "0.0.1",
 	"engines": {
@@ -10,24 +10,47 @@
 		"Other"
 	],
 	"activationEvents": [
-		"onCommand:extension.terminal-run-cd.cd",
-		"onCommand:extension.terminal-run-cd.global_cd",
-		"onCommand:extension.terminal-run-cd.run"
+		"onCommand:terminal-run-cd.cd",
+		"onCommand:terminal-run-cd.global_cd",
+		"onCommand:terminal-run-cd.run"
 	],
 	"main": "./out/extension.js",
 	"contributes": {
 		"commands": [{
-			"command": "extension.terminal-run-cd.cd",
-			"title": "Terminal Run/CD: change directory"
+			"command": "terminal-run-cd.cd",
+      "title": "change directory",
+      "category": "Terminal Run/CD:"
 		},
 		{
-			"command": "extension.terminal-run-cd.global_cd",
-			"title": "Terminal Run/CD: (global) change directory"
+			"command": "terminal-run-cd.global_cd",
+      "title": "global change directory",
+      "category": "Terminal Run/CD"
 		},
 		{
-			"command": "extension.terminal-run-cd.run",
-			"title": "Terminal Run/CD: run file"
-		}]
+			"command": "terminal-run-cd.run",
+			"title": "run file",
+      "category": "Terminal Run/CD"
+    }],
+    "configuration": {
+      "type": "object",
+      "title": "Terminal Run/CD Configuration",
+      "properties": {
+        "terminal-run-cd.language-config": {
+          "type": "object",
+          "description": "Language-specific commands to run scripts and change directories",
+          "default": {
+            "python": {"run": "%%run \"%\"", "cd": "%%cd \"%\""},
+            "julia": {"run": "include(\"%\")", "cd": "cd(\"%\")"},
+            "r": {"run": "source(\"%\")", "cd": "setwd(\"%\")"},
+            "matlab": {"run": "run '%'", "cd": "cd '%'" },
+            "javascript": {"run": ".load \"%\"", "cd": "process.chdir(\"%\")"}
+          },
+          "patternProperties": {
+            ".*": { "cd": {"type": "string"}, "run": {"type": "string"} }
+          }
+        }
+      }
+    }
 	},
 	"scripts": {
 		"vscode:prepublish": "yarn run compile",

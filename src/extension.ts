@@ -1,6 +1,57 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
+import * as path from 'path'
+import { TextDecoder } from 'util';
+
+function with_editor(fn: (editor: vscode.TextEditor) => void){
+  let editor = vscode.window.activeTextEditor
+  if(!editor){
+    vscode.window.showErrorMessage("No active text editor.");
+  }else{
+    fn(editor);
+  }
+}
+
+function with_file_path(editor: vscode.TextEditor,fn: (path: string) => void) {
+    let uri = editor.document.uri;
+    if(uri.scheme !== "file"){
+      vscode.window.showErrorMessage("Current file is not local to this filesystem");
+    }else{
+      fn(uri.fsPath);
+    }
+}
+
+function get_terminal() {
+  return vscode.window.activeTerminal || vscode.window.createTerminal();
+}
+
+interface TermLanguageConfig {
+  cd: string;
+  run: string;
+}
+
+function language_config(editor: vscode.TextEditor){
+  let config = vscode.workspace.getConfiguration("terminal-run-cd.language-config");
+
+  let l_config: TermLanguageConfig | undefined = config.get(editor.document.languageId);
+  if(l_config){
+    return l_config;
+  }else{
+    return {cd: "cd \"%\"", run: "./\"%\""};
+  }
+}
+
+function replace_wildcard(pattern: string,val: string) {
+  // the wildcard pattern is a single '%' with no neighboring '%'
+  // this allows us to escape the wildcard character
+  let wildcard = /([^%]|^)(%)([^%]|$)/;
+  let escaped_wildcard = /%%/;
+
+  return pattern.replace(wildcard,(_,prefix,match,suffix) => {
+    return prefix+val+suffix;
+  }).replace(escaped_wildcard,'%');
+}
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -10,18 +61,41 @@ export function activate(context: vscode.ExtensionContext) {
 	// This line of code will only be executed once when your extension is activated
 	console.log('"terminal-run-cd" is now active!');
 
-	// The command has been defined in the package.json file
-	// Now provide the implementation of the command with registerCommand
-	// The commandId parameter must match the command field in package.json
-	let disposable = vscode.commands.registerCommand('extension.terminal-run-cd.cd', () => {
-    // TODO: implement
-		// The code you place here will be executed every time your command is executed
+	// Change directory, as if we were in a bash or DOS terminal
+	let command = vscode.commands.registerCommand('terminal-run-cd.global_cd', () => {
+    with_editor(editor => {
+      with_file_path(editor, file => {
+        let dir = path.dirname(file);
+        let terminal = get_terminal()
+        terminal.sendText('cd "' + dir + '"');
+        terminal.show();
+      });
+    });
+  });
+  context.subscriptions.push(command);
 
-		// Display a message box to the user
-		vscode.window.showInformationMessage('Hello World!');
-	});
+  command = vscode.commands.registerCommand('terminal-run-cd.cd', () => {
+    with_editor(editor => {
+      with_file_path(editor, file => {
+        let dir = path.dirname(file);
+        let pattern = language_config(editor).cd;
+        let terminal = get_terminal();
+        terminal.sendText(replace_wildcard(pattern,dir));
+        terminal.show();
+      });
+    });
+  });
 
-	context.subscriptions.push(disposable);
+  command = vscode.commands.registerCommand('terminal-run-cd.run', () => {
+    with_editor(editor => {
+      with_file_path(editor, file => {
+        let pattern = language_config(editor).run;
+        let terminal = get_terminal();
+        terminal.sendText(replace_wildcard(pattern,file));
+        terminal.show();
+      });
+    });
+  });
 }
 
 // this method is called when your extension is deactivated
