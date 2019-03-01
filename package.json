@@ -1,0 +1,46 @@
+{
+	"name": "Terminal Run/CD",
+	"displayName": "terminal-run-cd",
+	"description": "Changed directories and run scripts in the terminal across multiple languages.",
+	"version": "0.0.1",
+	"engines": {
+		"vscode": "^1.31.0"
+	},
+	"categories": [
+		"Other"
+	],
+	"activationEvents": [
+		"onCommand:extension.terminal-run-cd.cd",
+		"onCommand:extension.terminal-run-cd.global_cd",
+		"onCommand:extension.terminal-run-cd.run"
+	],
+	"main": "./out/extension.js",
+	"contributes": {
+		"commands": [{
+			"command": "extension.terminal-run-cd.cd",
+			"title": "Terminal Run/CD: change directory"
+		},
+		{
+			"command": "extension.terminal-run-cd.global_cd",
+			"title": "Terminal Run/CD: (global) change directory"
+		},
+		{
+			"command": "extension.terminal-run-cd.run",
+			"title": "Terminal Run/CD: run file"
+		}]
+	},
+	"scripts": {
+		"vscode:prepublish": "yarn run compile",
+		"compile": "tsc -p ./",
+		"watch": "tsc -watch -p ./",
+		"postinstall": "node ./node_modules/vscode/bin/install",
+		"test": "yarn run compile && node ./node_modules/vscode/bin/test"
+	},
+	"devDependencies": {
+		"typescript": "^3.3.1",
+		"vscode": "^1.1.28",
+		"tslint": "^5.12.1",
+		"@types/node": "^10.12.21",
+		"@types/mocha": "^2.2.42"
+	}
+}
