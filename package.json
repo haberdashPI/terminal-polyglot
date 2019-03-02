@@ -1,6 +1,9 @@
 {
-	"name": "terminal-run-cd",
-	"displayName": "Terminal Run/CD",
+  "name": "terminal-run-cd",
+  "publisher": "haberdashPI",
+  "repository": "https://github.com/haberdashPI/terminal-run-cd",
+  "displayName": "Terminal Run/CD",
+  "license": "MIT",
 	"description": "Changed directories and run scripts in the terminal across multiple languages.",
 	"version": "0.0.1",
 	"engines": {
