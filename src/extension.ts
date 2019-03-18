@@ -22,8 +22,31 @@ function with_file_path(editor: vscode.TextEditor,fn: (path: string) => void) {
     }
 }
 
-function get_terminal() {
-  return vscode.window.activeTerminal || vscode.window.createTerminal();
+function find_terminal(terminal_name: string){
+  for(let term of vscode.window.terminals){
+    if(term.name === terminal_name){ return term; }
+  }
+  return undefined;
+}
+
+function get_terminal(context: vscode.ExtensionContext,
+    editor: vscode.TextEditor,file: string) {
+
+  var state: {[key: string]: string;} = context.workspaceState.get('terminal-map') || {};
+
+  let config = vscode.workspace.getConfiguration("terminal-run-cd.language-config");
+  let languageId = editor.document.languageId;
+  let terminal_name = state[file] || state[languageId];
+  let terminal = (terminal_name === undefined) ? find_terminal(terminal_name) :
+    vscode.window.createTerminal(languageId);
+  if(terminal === undefined){
+    vscode.window.showErrorMessage("Error creating a terminal.");
+  }else{
+    if(state[languageId] === undefined){ state[languageId] = terminal.name; }
+    context.workspaceState.update('terminal-map',state);
+  }
+
+  return terminal;
 }
 
 interface TermLanguageConfig {
@@ -66,7 +89,7 @@ export function activate(context: vscode.ExtensionContext) {
     with_editor(editor => {
       with_file_path(editor, file => {
         let dir = path.dirname(file);
-        let terminal = get_terminal()
+        let terminal = get_terminal(context,file)
         terminal.sendText('cd "' + dir + '"');
         terminal.show();
       });
@@ -79,7 +102,7 @@ export function activate(context: vscode.ExtensionContext) {
       with_file_path(editor, file => {
         let dir = path.dirname(file);
         let pattern = language_config(editor).cd;
-        let terminal = get_terminal();
+        let terminal = get_terminal(context);
         terminal.sendText(replace_wildcard(pattern,dir));
         terminal.show();
       });
@@ -90,7 +113,7 @@ export function activate(context: vscode.ExtensionContext) {
     with_editor(editor => {
       with_file_path(editor, file => {
         let pattern = language_config(editor).run;
-        let terminal = get_terminal();
+        let terminal = get_terminal(context);
         terminal.sendText(replace_wildcard(pattern,file));
         terminal.show();
       });

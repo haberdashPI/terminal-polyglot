@@ -18,6 +18,11 @@ The default value is:
 }
 ```
 
+## Plans
+
+Next step is to associate different terminals with different files (and 
+default to a new terminal for different file types).
+
 ## Status
 
 This is still in early stages of development.
