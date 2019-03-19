@@ -13,6 +13,7 @@
 		"Other"
 	],
 	"activationEvents": [
+    "onCommand:terminal-run-cd.send-text",
 		"onCommand:terminal-run-cd.cd",
 		"onCommand:terminal-run-cd.global_cd",
 		"onCommand:terminal-run-cd.run"

@@ -3,6 +3,7 @@
 import * as vscode from 'vscode';
 import * as path from 'path'
 import { TextDecoder } from 'util';
+import { EIDRM } from 'constants';
 
 function with_editor(fn: (editor: vscode.TextEditor) => void){
   let editor = vscode.window.activeTextEditor;
@@ -26,29 +27,19 @@ function find_terminal(terminal_name: string){
   for(let term of vscode.window.terminals){
     if(term.name === terminal_name){ return term; }
   }
-  return undefined;
+  vscode.window.createTerminal(terminal_name);
 }
 
 function get_terminal(context: vscode.ExtensionContext,
     editor: vscode.TextEditor,file: string) {
 
-  var state: {[key: string]: string;} = context.workspaceState.get('terminal-map') || {};
+  let state: {[key: string]: string;} = context.workspaceState.get('terminal-map') || {};
 
-  let config = vscode.workspace.getConfiguration("terminal-run-cd.language-config");
   let languageId = editor.document.languageId;
-  let terminal_name = state["file:"+file] || state["lang:"+languageId];
+  let terminal_name = (file ? state["file:"+file] : undefined) ||
+    state["lang:"+languageId];
   let terminal = (terminal_name !== undefined) ? find_terminal(terminal_name) :
-    vscode.window.createTerminal(languageId+"-shell-1");
-
-  if(terminal === undefined){
-    vscode.window.showErrorMessage("Error creating a terminal.");
-  }else{
-    if(state["lang:"+languageId] === undefined){
-      state["lang:"+languageId] = terminal.name;
-      state["file:"+file] = terminal.name;
-    }
-    context.workspaceState.update('terminal-map',state);
-  }
+    vscode.window.createTerminal();
 
   return terminal;
 }
@@ -80,6 +71,22 @@ function replace_wildcard(pattern: string,val: string) {
   }).replace(escaped_wildcard,'%');
 }
 
+function get_term_count_for(languageId: string){
+  let count = 0;
+  let pattern = new RegExp("^"+languageId+"-shell-"+"[0-9]+$");
+  for(let term of vscode.window.terminals){
+    if(pattern.test(term.name)){ count++; }
+  }
+  return count;
+}
+
+function get_term_languageId(terminal: vscode.Terminal){
+  let pattern = /^(.*)-shell-[0-9]+$/;
+  let match = terminal.name.match(pattern);
+  if(match){ return match[1]; }
+  else{ return undefined; }
+}
+
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
@@ -87,34 +94,78 @@ export function activate(context: vscode.ExtensionContext) {
 	// Use the console to output diagnostic information (console.log) and errors (console.error)
 	// This line of code will only be executed once when your extension is activated
   console.log('"terminal-run-cd" is now active!');
+  let last_editor = vscode.window.activeTextEditor;
 
-  // TODO: add a hook to register new terminals with particular editors when the
-  // editor is switched (this will have to avoid associating different-language
-  // terminals with a particular file)
+  vscode.window.onDidChangeActiveTextEditor(event => {
+    last_editor = vscode.window.activeTextEditor || last_editor;
+  });
+
+  // newly opened terminals get renamed based on the language of the most recent
+  // editor, and they're associated with the last editor for future use
+  vscode.window.onDidOpenTerminal(event => {
+    if(last_editor){
+      let languageId = last_editor.document.languageId;
+      let terminal = vscode.window.activeTerminal;
+      if(terminal){
+        let count = get_term_count_for(languageId)+1;
+        let name = languageId + '-shell-' + count;
+        vscode.commands.executeCommand('workbench.action.terminal.rename',
+          languageId + '-shell-' + count);
+        let uri = last_editor.document.uri;
+        let state: {[key: string]: string;} =
+          context.workspaceState.get('terminal-map') || {};
+
+        if(uri){ state["file:"+uri.fsPath] = name; }
+        if(!state["lang:"+languageId]){ state["lang:"+languageId] = name; }
+        context.workspaceState.update('terminal-map',state);
+      }
+    }
+  });
+
+  // changes to the active terminal change the terminal associated with the last
+  // edited file, if they're associated with the same language
+  vscode.window.onDidChangeActiveTerminal(event => {
+    if(!vscode.window.activeTerminal){
+      return;
+    }else{
+      let state: {[key: string]: string;} =
+        context.workspaceState.get('terminal-map') || {};
+      if(last_editor){
+        let languageId = last_editor.document.languageId;
+        let termLangId = get_term_languageId(vscode.window.activeTerminal);
+        if(termLangId && termLangId === languageId){
+          let name = vscode.window.activeTerminal.name;
+          let uri = last_editor.document.uri;
+          if(uri){ state["file:"+uri.fsPath] = name; }
+        }
+      }
+    }
+  });
+
+  // TODO: changes to a filename require an update of the terminal name take
+  // advantage of the new rename API when it exists
+  // https://github.com/Microsoft/vscode/issues/43768
 
   // Send commands, respecting the association between files and
   // particular terminals
   let command = vscode.commands.registerCommand('terminal-run-cd.send-text', () => {
     with_editor(editor => {
-      with_file_path(editor, file => {
-        let terminal = get_terminal(context,editor,file);
-        let sel = editor.selection;
-        let text = "";
-        if(sel.isEmpty){
-          text = editor.document.lineAt(sel.active).text;
-        }else{
-          text = editor.document.getText(sel);
-        }
-        if(terminal){
-          terminal.sendText(text);
-          terminal.show();
-          let pos = new vscode.Position(sel.end.line+1,0);
-          editor.selection = new vscode.Selection(pos,pos);
-        }
-      })
-    })
-
-  })
+      let terminal = get_terminal(context,editor,editor.document.fileName);
+      let sel = editor.selection;
+      let text = "";
+      if(sel.isEmpty){
+        text = editor.document.lineAt(sel.active).text;
+      }else{
+        text = editor.document.getText(sel);
+      }
+      if(terminal){
+        terminal.sendText(text);
+        terminal.show();
+        let pos = new vscode.Position(sel.end.line+1,0);
+        editor.selection = new vscode.Selection(pos,pos);
+      }
+    });
+  });
   context.subscriptions.push(command);
 
 	// Change directory, as if we were in a bash or DOS terminal
