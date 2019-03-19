@@ -36,13 +36,17 @@ function get_terminal(context: vscode.ExtensionContext,
 
   let config = vscode.workspace.getConfiguration("terminal-run-cd.language-config");
   let languageId = editor.document.languageId;
-  let terminal_name = state[file] || state[languageId];
-  let terminal = (terminal_name === undefined) ? find_terminal(terminal_name) :
-    vscode.window.createTerminal(languageId);
+  let terminal_name = state["file:"+file] || state["lang:"+languageId];
+  let terminal = (terminal_name !== undefined) ? find_terminal(terminal_name) :
+    vscode.window.createTerminal(languageId+"-shell-1");
+
   if(terminal === undefined){
     vscode.window.showErrorMessage("Error creating a terminal.");
   }else{
-    if(state[languageId] === undefined){ state[languageId] = terminal.name; }
+    if(state["lang:"+languageId] === undefined){
+      state["lang:"+languageId] = terminal.name;
+      state["file:"+file] = terminal.name;
+    }
     context.workspaceState.update('terminal-map',state);
   }
 
@@ -82,16 +86,47 @@ export function activate(context: vscode.ExtensionContext) {
 
 	// Use the console to output diagnostic information (console.log) and errors (console.error)
 	// This line of code will only be executed once when your extension is activated
-	console.log('"terminal-run-cd" is now active!');
+  console.log('"terminal-run-cd" is now active!');
+
+  // TODO: add a hook to register new terminals with particular editors when the
+  // editor is switched (this will have to avoid associating different-language
+  // terminals with a particular file)
+
+  // Send commands, respecting the association between files and
+  // particular terminals
+  let command = vscode.commands.registerCommand('terminal-run-cd.send-text', () => {
+    with_editor(editor => {
+      with_file_path(editor, file => {
+        let terminal = get_terminal(context,editor,file);
+        let sel = editor.selection;
+        let text = "";
+        if(sel.isEmpty){
+          text = editor.document.lineAt(sel.active).text;
+        }else{
+          text = editor.document.getText(sel);
+        }
+        if(terminal){
+          terminal.sendText(text);
+          terminal.show();
+          let pos = new vscode.Position(sel.end.line+1,0);
+          editor.selection = new vscode.Selection(pos,pos);
+        }
+      })
+    })
+
+  })
+  context.subscriptions.push(command);
 
 	// Change directory, as if we were in a bash or DOS terminal
-	let command = vscode.commands.registerCommand('terminal-run-cd.global_cd', () => {
+	command = vscode.commands.registerCommand('terminal-run-cd.global_cd', () => {
     with_editor(editor => {
       with_file_path(editor, file => {
         let dir = path.dirname(file);
-        let terminal = get_terminal(context,file)
-        terminal.sendText('cd "' + dir + '"');
-        terminal.show();
+        let terminal = get_terminal(context,editor,file);
+        if(terminal){
+          terminal.sendText('cd "' + dir + '"');
+          terminal.show();
+        }
       });
     });
   });
@@ -102,9 +137,11 @@ export function activate(context: vscode.ExtensionContext) {
       with_file_path(editor, file => {
         let dir = path.dirname(file);
         let pattern = language_config(editor).cd;
-        let terminal = get_terminal(context);
-        terminal.sendText(replace_wildcard(pattern,dir));
-        terminal.show();
+        let terminal = get_terminal(context,editor,file);
+        if(terminal){
+          terminal.sendText(replace_wildcard(pattern,dir));
+          terminal.show();
+        }
       });
     });
   });
@@ -113,9 +150,11 @@ export function activate(context: vscode.ExtensionContext) {
     with_editor(editor => {
       with_file_path(editor, file => {
         let pattern = language_config(editor).run;
-        let terminal = get_terminal(context);
-        terminal.sendText(replace_wildcard(pattern,file));
-        terminal.show();
+        let terminal = get_terminal(context,editor,file);
+        if(terminal){
+          terminal.sendText(replace_wildcard(pattern,file));
+          terminal.show();
+        }
       });
     });
   });
