@@ -100,30 +100,45 @@ export function activate(context: vscode.ExtensionContext) {
     last_editor = vscode.window.activeTextEditor || last_editor;
   });
 
+  // TODO: this approach doesn't work well, instead I need to have
+  // a separate terminal open command specific to the extension (fair enough)
+
   // newly opened terminals get renamed based on the language of the most recent
   // editor, and they're associated with the last editor for future use
-  vscode.window.onDidOpenTerminal(event => {
+  vscode.window.onDidOpenTerminal((terminal: vscode.Terminal) => {
     if(last_editor){
+      console.log("Openining terminal, change name?");
       let languageId = last_editor.document.languageId;
-      let terminal = vscode.window.activeTerminal;
+      console.log("terminal value "+terminal);
       if(terminal){
+        console.log("Found terminal.");
         let count = get_term_count_for(languageId)+1;
         let name = languageId + '-shell-' + count;
+        console.log("Changing to name: "+name);
         vscode.commands.executeCommand('workbench.action.terminal.rename',
-          languageId + '-shell-' + count);
+          languageId + '-shell-' + count).then(result => {
+            console.log("name changed to: "+terminal.name);
+            console.log("command output: ");
+            console.table(result);
+          });
         let uri = last_editor.document.uri;
         let state: {[key: string]: string;} =
           context.workspaceState.get('terminal-map') || {};
 
         if(uri){ state["file:"+uri.fsPath] = name; }
         if(!state["lang:"+languageId]){ state["lang:"+languageId] = name; }
+
+        console.table(state);
         context.workspaceState.update('terminal-map',state);
       }
     }
   });
 
-  // changes to the active terminal change the terminal associated with the last
-  // edited file, if they're associated with the same language
+  // TODO: create a command to cycle through terminals within a given
+  // language
+
+  // changing to the active terminal also change the terminal associated with
+  // the last edited file, if they're associated with the same language
   vscode.window.onDidChangeActiveTerminal(event => {
     if(!vscode.window.activeTerminal){
       return;

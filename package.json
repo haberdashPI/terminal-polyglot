@@ -13,10 +13,11 @@
 		"Other"
 	],
 	"activationEvents": [
+    "onCommand:terminal-run-cd.open-terminal",
     "onCommand:terminal-run-cd.send-text",
 		"onCommand:terminal-run-cd.cd",
 		"onCommand:terminal-run-cd.global_cd",
-		"onCommand:terminal-run-cd.run"
+    "onCommand:terminal-run-cd.run"
 	],
 	"main": "./out/extension.js",
 	"contributes": {
