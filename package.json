@@ -14,6 +14,7 @@
 	],
 	"activationEvents": [
     "onCommand:terminal-run-cd.open-terminal",
+    "onCommand:terminal-run-cd.new-terminal",
     "onCommand:terminal-run-cd.send-text",
 		"onCommand:terminal-run-cd.cd",
 		"onCommand:terminal-run-cd.global_cd",
@@ -22,9 +23,19 @@
 	"main": "./out/extension.js",
 	"contributes": {
 		"commands": [{
+      "command": "terminal-run-cd.send-text",
+      "title": "send text",
+      "category": "Terminal Run/CD"
+    },
+    {
+      "command": "terminal-run-cd.open-terminal",
+      "title": "open terminal",
+      "category": "Terminal Run/CD"
+    },
+    {
 			"command": "terminal-run-cd.cd",
       "title": "change directory",
-      "category": "Terminal Run/CD:"
+      "category": "Terminal Run/CD"
 		},
 		{
 			"command": "terminal-run-cd.global_cd",
@@ -36,6 +47,7 @@
 			"title": "run file",
       "category": "Terminal Run/CD"
     }],
+
     "configuration": {
       "type": "object",
       "title": "Terminal Run/CD Configuration",
@@ -44,8 +56,13 @@
           "type": "object",
           "description": "Language-specific commands to run scripts and change directories",
           "default": {
-            "python": {"run": "%%run \"%\"", "cd": "%%cd \"%\""},
+            "python": {
+              "run": "exec(open(\"%\").read(), globals())",
+              "cd": "import os; os.chdir(\"%\")"
+            },
+            "clojure": {"run": "(load-file \"%\")", "cd": ""},
             "julia": {"run": "include(\"%\")", "cd": "cd(\"%\")"},
+            "ruby": {"run": "load '%'", "cd": "Dir.chdir('%')"},
             "r": {"run": "source(\"%\")", "cd": "setwd(\"%\")"},
             "matlab": {"run": "run '%'", "cd": "cd '%'" },
             "javascript": {"run": ".load \"%\"", "cd": "process.chdir(\"%\")"}
@@ -56,6 +73,7 @@
         }
       }
     }
+
 	},
 	"scripts": {
 		"vscode:prepublish": "yarn run compile",

@@ -23,11 +23,35 @@ function with_file_path(editor: vscode.TextEditor,fn: (path: string) => void) {
     }
 }
 
-function find_terminal(terminal_name: string){
+function get_term_count_for(languageId: string){
+  let count = 0;
+  let pattern = new RegExp("^"+languageId+"-shell-"+"([0-9]+)$");
   for(let term of vscode.window.terminals){
-    if(term.name === terminal_name){ return term; }
+      let result = term.name.match(pattern)
+    if(result){ count = Math.max(count,parseInt(result[1])); }
   }
-  vscode.window.createTerminal(terminal_name);
+  return count;
+}
+
+function create_terminal(context: vscode.ExtensionContext,
+  languageId: string, file: string, name: string): vscode.Terminal {
+
+  let term = vscode.window.createTerminal(name);
+  let state: {[key: string]: string;} = context.workspaceState.get('terminal-map') || {};
+
+  state["file:"+file] = term.name;
+  if(!state["lang:"+languageId]){ state["lang:"+languageId] = term.name; }
+  context.workspaceState.update('terminal-map',state);
+
+  return term;
+}
+
+function find_terminal(context: vscode.ExtensionContext,
+  languageId: string, file: string, name: string): vscode.Terminal {
+  for(let term of vscode.window.terminals){
+    if(term.name === name){ return term; }
+  }
+  return create_terminal(context,languageId,file,name);
 }
 
 function get_terminal(context: vscode.ExtensionContext,
@@ -38,11 +62,13 @@ function get_terminal(context: vscode.ExtensionContext,
   let languageId = editor.document.languageId;
   let terminal_name = (file ? state["file:"+file] : undefined) ||
     state["lang:"+languageId];
-  // TODO: ensure I get a terminal here...
-  let terminal = (terminal_name !== undefined) ? find_terminal(terminal_name) :
-    new_term_for(languageId);
 
-  return terminal;
+  if(terminal_name !== undefined){
+    return find_terminal(context,languageId,file,terminal_name);
+  }else{
+    let count = get_term_count_for(languageId)+1;
+    return create_terminal(context,languageId,file,languageId+'-shell-'+count);
+  }
 }
 
 interface TermLanguageConfig {
@@ -70,21 +96,6 @@ function replace_wildcard(pattern: string,val: string) {
   return pattern.replace(wildcard,(_,prefix,match,suffix) => {
     return prefix+val+suffix;
   }).replace(escaped_wildcard,'%');
-}
-
-function get_term_count_for(languageId: string){
-  let count = 0;
-  let pattern = new RegExp("^"+languageId+"-shell-"+"([0-9]+)$");
-  for(let term of vscode.window.terminals){
-      let result = term.name.match(pattern)
-    if(result){ count = Math.max(count,parseInt(result[1])); }
-  }
-  return count;
-}
-
-function new_term_for(languageId: string){
-  let count = get_term_count_for(languageId)+1;
-  vscode.window.createTerminal(languageId+"-shell-"+count);
 }
 
 function get_term_languageId(terminal: vscode.Terminal){
@@ -143,17 +154,31 @@ export function activate(context: vscode.ExtensionContext) {
       let sel = editor.selection;
       let text = "";
       if(sel.isEmpty){
-        text = editor.document.lineAt(sel.active).text;
+        // TODO: this is where I last had problems if this is on the very last
+        // line at the end we might get the "next" line, which doesn't exist
+        text = editor.document.lineAt(sel.active.line).text;
       }else{
         text = editor.document.getText(sel);
       }
       if(terminal){
         terminal.sendText(text);
-        terminal.show();
+        terminal.show(true);
         let pos = new vscode.Position(sel.end.line+1,0);
         editor.selection = new vscode.Selection(pos,pos);
       }
     });
+  });
+  context.subscriptions.push(command);
+
+  command = vscode.commands.registerCommand('terminal-run-cd.new-terminal', () => {
+    with_editor(editor => {
+      let languageId = editor.document.languageId;
+
+      let count = get_term_count_for(languageId)+1;
+      let terminal = create_terminal(context,languageId,
+        editor.document.fileName, languageId+'-shell-'+count);
+      if(terminal){ terminal.show(); }
+    })
   });
   context.subscriptions.push(command);
 
@@ -163,6 +188,8 @@ export function activate(context: vscode.ExtensionContext) {
       if(terminal){ terminal.show(); }
     })
   });
+  context.subscriptions.push(command);
+
 
 	// Change directory, as if we were in a bash or DOS terminal
 	command = vscode.commands.registerCommand('terminal-run-cd.global_cd', () => {
