@@ -31,15 +31,16 @@ function find_terminal(terminal_name: string){
 }
 
 function get_terminal(context: vscode.ExtensionContext,
-    editor: vscode.TextEditor,file: string) {
+    editor: vscode.TextEditor,file: string): vscode.Terminal {
 
   let state: {[key: string]: string;} = context.workspaceState.get('terminal-map') || {};
 
   let languageId = editor.document.languageId;
   let terminal_name = (file ? state["file:"+file] : undefined) ||
     state["lang:"+languageId];
+  // TODO: ensure I get a terminal here...
   let terminal = (terminal_name !== undefined) ? find_terminal(terminal_name) :
-    vscode.window.createTerminal();
+    new_term_for(languageId);
 
   return terminal;
 }
@@ -73,11 +74,17 @@ function replace_wildcard(pattern: string,val: string) {
 
 function get_term_count_for(languageId: string){
   let count = 0;
-  let pattern = new RegExp("^"+languageId+"-shell-"+"[0-9]+$");
+  let pattern = new RegExp("^"+languageId+"-shell-"+"([0-9]+)$");
   for(let term of vscode.window.terminals){
-    if(pattern.test(term.name)){ count++; }
+      let result = term.name.match(pattern)
+    if(result){ count = Math.max(count,parseInt(result[1])); }
   }
   return count;
+}
+
+function new_term_for(languageId: string){
+  let count = get_term_count_for(languageId)+1;
+  vscode.window.createTerminal(languageId+"-shell-"+count);
 }
 
 function get_term_languageId(terminal: vscode.Terminal){
@@ -100,56 +107,23 @@ export function activate(context: vscode.ExtensionContext) {
     last_editor = vscode.window.activeTextEditor || last_editor;
   });
 
-  // TODO: this approach doesn't work well, instead I need to have
-  // a separate terminal open command specific to the extension (fair enough)
-
-  // newly opened terminals get renamed based on the language of the most recent
-  // editor, and they're associated with the last editor for future use
-  vscode.window.onDidOpenTerminal((terminal: vscode.Terminal) => {
-    if(last_editor){
-      console.log("Openining terminal, change name?");
-      let languageId = last_editor.document.languageId;
-      console.log("terminal value "+terminal);
-      if(terminal){
-        console.log("Found terminal.");
-        let count = get_term_count_for(languageId)+1;
-        let name = languageId + '-shell-' + count;
-        console.log("Changing to name: "+name);
-        vscode.commands.executeCommand('workbench.action.terminal.rename',
-          languageId + '-shell-' + count).then(result => {
-            console.log("name changed to: "+terminal.name);
-            console.log("command output: ");
-            console.table(result);
-          });
-        let uri = last_editor.document.uri;
-        let state: {[key: string]: string;} =
-          context.workspaceState.get('terminal-map') || {};
-
-        if(uri){ state["file:"+uri.fsPath] = name; }
-        if(!state["lang:"+languageId]){ state["lang:"+languageId] = name; }
-
-        console.table(state);
-        context.workspaceState.update('terminal-map',state);
-      }
-    }
-  });
+  // TODO: I need to have a separate terminal open command specific to the
+  // extension (fair enough)
 
   // TODO: create a command to cycle through terminals within a given
   // language
 
   // changing to the active terminal also change the terminal associated with
   // the last edited file, if they're associated with the same language
-  vscode.window.onDidChangeActiveTerminal(event => {
-    if(!vscode.window.activeTerminal){
-      return;
-    }else{
+  vscode.window.onDidChangeActiveTerminal((terminal: vscode.Terminal | undefined) => {
+    if(terminal){
       let state: {[key: string]: string;} =
         context.workspaceState.get('terminal-map') || {};
       if(last_editor){
         let languageId = last_editor.document.languageId;
-        let termLangId = get_term_languageId(vscode.window.activeTerminal);
+        let termLangId = get_term_languageId(terminal);
         if(termLangId && termLangId === languageId){
-          let name = vscode.window.activeTerminal.name;
+          let name = terminal.name;
           let uri = last_editor.document.uri;
           if(uri){ state["file:"+uri.fsPath] = name; }
         }
@@ -182,6 +156,13 @@ export function activate(context: vscode.ExtensionContext) {
     });
   });
   context.subscriptions.push(command);
+
+  command = vscode.commands.registerCommand('terminal-run-cd.open-terminal', () => {
+    with_editor(editor => {
+      let terminal = get_terminal(context,editor,editor.document.fileName);
+      if(terminal){ terminal.show(); }
+    })
+  });
 
 	// Change directory, as if we were in a bash or DOS terminal
 	command = vscode.commands.registerCommand('terminal-run-cd.global_cd', () => {
