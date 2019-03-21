@@ -4,79 +4,81 @@
   "repository": "https://github.com/haberdashPI/terminal-run-cd",
   "displayName": "Terminal Run/CD",
   "license": "MIT",
-	"description": "Easily manage terminals on a per-language basis.",
-	"version": "0.1.0",
-	"engines": {
-		"vscode": "^1.31.0"
-	},
-	"categories": [
-		"Other"
-	],
-	"activationEvents": [
+  "description": "Easily manage terminals on a per-language basis.",
+  "version": "0.1.0",
+  "engines": {
+    "vscode": "^1.31.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
     "onCommand:terminal-run-cd.open-terminal",
     "onCommand:terminal-run-cd.new-terminal",
     "onCommand:terminal-run-cd.send-text",
-		"onCommand:terminal-run-cd.cd",
-		"onCommand:terminal-run-cd.global_cd",
+    "onCommand:terminal-run-cd.cd",
+    "onCommand:terminal-run-cd.global_cd",
     "onCommand:terminal-run-cd.run"
   ],
-	"main": "./out/extension.js",
-	"contributes": {
-    "keybindings": [{
-      "command": "terminal-run-cd.send-text",
-      "key": "ctrl+shift+enter",
-      "when": "editorTextFocus"
-    },
-    {
-      "command": "terminal-run-cd.new-terminal",
-      "key": "ctrl+shift+'",
-      "when": "editorTextFocus"
-    },
-    {
-      "command": "terminal-run-cd.open-terminal",
-      "key": "ctrl+'",
-      "when": "editorTextFocus"
-    },
-    {
-      "command": "workbench.action.terminal.toggleTerminal",
-      "key": "ctrl+'",
-      "when": "terminalFocus"
-    }],
-		"commands": [{
-      "command": "terminal-run-cd.send-text",
-      "title": "send text",
-      "category": "Terminal Run/CD"
-    },
-    {
-      "command": "terminal-run-cd.new-terminal",
-      "title": "new terminal",
-      "category": "Terminal Run/CD"
-    },
-    {
-      "command": "terminal-run-cd.open-terminal",
-      "title": "open terminal",
-      "category": "Terminal Run/CD"
-    },
-    {
-			"command": "terminal-run-cd.cd",
-      "title": "change directory",
-      "category": "Terminal Run/CD"
-		},
-		{
-			"command": "terminal-run-cd.global_cd",
-      "title": "global change directory",
-      "category": "Terminal Run/CD"
-		},
-		{
-			"command": "terminal-run-cd.run",
-			"title": "run file",
-      "category": "Terminal Run/CD"
-    }],
-
+  "main": "./out/extension.js",
+  "contributes": {
+    "keybindings": [
+      {
+        "command": "terminal-run-cd.send-text",
+        "key": "ctrl+shift+enter",
+        "when": "editorTextFocus"
+      },
+      {
+        "command": "terminal-run-cd.new-terminal",
+        "key": "ctrl+shift+'",
+        "when": "editorTextFocus"
+      },
+      {
+        "command": "terminal-run-cd.open-terminal",
+        "key": "ctrl+'",
+        "when": "editorTextFocus"
+      },
+      {
+        "command": "workbench.action.terminal.toggleTerminal",
+        "key": "ctrl+'",
+        "when": "terminalFocus"
+      }
+    ],
+    "commands": [
+      {
+        "command": "terminal-run-cd.send-text",
+        "title": "send text",
+        "category": "Terminal Run/CD"
+      },
+      {
+        "command": "terminal-run-cd.new-terminal",
+        "title": "new terminal",
+        "category": "Terminal Run/CD"
+      },
+      {
+        "command": "terminal-run-cd.open-terminal",
+        "title": "open terminal",
+        "category": "Terminal Run/CD"
+      },
+      {
+        "command": "terminal-run-cd.cd",
+        "title": "change directory",
+        "category": "Terminal Run/CD"
+      },
+      {
+        "command": "terminal-run-cd.global_cd",
+        "title": "global change directory",
+        "category": "Terminal Run/CD"
+      },
+      {
+        "command": "terminal-run-cd.run",
+        "title": "run file",
+        "category": "Terminal Run/CD"
+      }
+    ],
     "configuration": {
       "type": "object",
       "title": "Terminal Run/CD Configuration",
-
       "properties": {
         "terminal-run-cd.language-config": {
           "type": "object",
@@ -112,6 +114,11 @@
               "run": "run '%'",
               "cd": "cd '%'"
             },
+            "typescript": {
+              "launch": "tsnode",
+              "run": ".load \"%\"",
+              "cd": "process.chdir(\"%\")"
+            },
             "javascript": {
               "launch": "node",
               "run": ".load \"%\"",
@@ -119,25 +126,35 @@
             }
           },
           "patternProperties": {
-            ".*": { "cd": {"type": "string"}, "run": {"type": "string"} }
+            ".*": {
+              "cd": {
+                "type": "string"
+              },
+              "run": {
+                "type": "string"
+              },
+              "launch": {
+                "type": "string"
+              }
+            }
           }
         }
       }
     }
-
-	},
-	"scripts": {
-		"vscode:prepublish": "yarn run compile",
-		"compile": "tsc -p ./",
-		"watch": "tsc -watch -p ./",
-		"postinstall": "node ./node_modules/vscode/bin/install",
-		"test": "yarn run compile && node ./node_modules/vscode/bin/test"
-	},
-	"devDependencies": {
-		"typescript": "^3.3.1",
-		"vscode": "^1.1.28",
-		"tslint": "^5.12.1",
-		"@types/node": "^10.12.21",
-		"@types/mocha": "^2.2.42"
-	}
+  },
+  "scripts": {
+    "vscode:prepublish": "yarn run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "postinstall": "node ./node_modules/vscode/bin/install",
+    "test": "yarn run compile && node ./node_modules/vscode/bin/test"
+  },
+  "devDependencies": {
+    "@types/mocha": "^2.2.42",
+    "@types/node": "^10.12.21",
+    "tslint": "^5.12.1",
+    "typescript": "^3.3.1",
+    "vscode": "^1.1.28"
+  },
+  "dependencies": {}
 }
