@@ -71,6 +71,18 @@ The default value is:
 }
 ```
 
+When running a command, The wildcard character `%` is replaced with the
+directory or filename as appropriate. You can include `%` characters in the
+string sent to the terminal by using it twice. For example, to use `ipython`
+instead of `python` you could configure python as follows:
+
+```json
+"python": {
+    "launch": "python",
+    "run": "%%run \"%\"",
+    "cd": "%%cd \"%\""
+}
+
 ## Status
 
 I am using the extension for my everyday work. Please feel free to report
