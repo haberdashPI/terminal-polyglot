@@ -4,7 +4,7 @@
   "repository": "https://github.com/haberdashPI/terminal-run-cd",
   "displayName": "Terminal Run/CD",
   "license": "MIT",
-	"description": "Changed directories and run scripts in the terminal across multiple languages.",
+	"description": "Easily manage terminals on a per-language basis.",
 	"version": "0.1.0",
 	"engines": {
 		"vscode": "^1.31.0"
