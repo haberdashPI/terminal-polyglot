@@ -108,6 +108,8 @@ function get_term_languageId(terminal: vscode.Terminal){
   else{ return undefined; }
 }
 
+let terminalChangeEvent: vscode.Disposable | undefined = undefined;
+
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
@@ -128,21 +130,23 @@ export function activate(context: vscode.ExtensionContext) {
 
   // changing to the active terminal also change the terminal associated with
   // the last edited file, if they're associated with the same language
-  vscode.window.onDidChangeActiveTerminal((terminal: vscode.Terminal | undefined) => {
-    if(terminal){
-      let state: {[key: string]: string;} =
-        context.workspaceState.get('terminal-map') || {};
-      if(last_editor){
-        let languageId = last_editor.document.languageId;
-        let termLangId = get_term_languageId(terminal);
-        if(termLangId && termLangId === languageId){
-          let name = terminal.name;
-          let uri = last_editor.document.uri;
-          if(uri){ state["file:"+uri.fsPath] = name; }
+  terminalChangeEvent = vscode.window.onDidChangeActiveTerminal(
+    (terminal: vscode.Terminal | undefined) => {
+      if(terminal){
+        let state: {[key: string]: string;} =
+          context.workspaceState.get('terminal-map') || {};
+        if(last_editor){
+          let languageId = last_editor.document.languageId;
+          let termLangId = get_term_languageId(terminal);
+          if(termLangId && termLangId === languageId){
+            let name = terminal.name;
+            let uri = last_editor.document.uri;
+            if(uri){ state["file:"+uri.fsPath] = name; }
+          }
         }
       }
     }
-  });
+  );
 
   // TODO: changes to a filename require an update of the terminal name take
   // advantage of the new rename API when it exists
@@ -239,4 +243,6 @@ export function activate(context: vscode.ExtensionContext) {
 }
 
 // this method is called when your extension is deactivated
-export function deactivate() {}
+export function deactivate() {
+  if(terminalChangeEvent){ terminalChangeEvent.dispose(); }
+}
