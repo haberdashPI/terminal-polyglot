@@ -29,6 +29,44 @@ function with_file_path(editor: vscode.TextEditor,fn: (path: string) => void) {
     }
 }
 
+function get_term_numbers_for(languageId: string){
+  let numbers = [];
+  let pattern = new RegExp("^"+languageId+"-shell-"+"([0-9]+)$");
+  for(let term of vscode.window.terminals){
+      let result = term.name.match(pattern)
+    if(result){ numbers.push(parseInt(result[1])); }
+  }
+  return numbers.sort();
+}
+
+function cycle_term_number(term_name: string, languageId: string, by: number){
+  let numbers = get_term_numbers_for(languageId);
+  let match = term_name.match(/^.*-shell-([0-9]+)$/);
+  if(match){
+    let num = parseInt(match[1]);
+    let new_num = 0;
+    for(var i = 0; i < numbers.length; i++){
+      if(numbers[i] === num){
+        let j = i+by;
+
+        if(j < 0){
+          j += numbers.length;
+        }else if(j >= numbers.length){
+          j -= numbers.length;
+        }
+        new_num = numbers[j];
+        break;
+      }
+    }
+    term_name = languageId+"-shell-"+new_num;
+  }else{
+    vscode.window.showErrorMessage("Malformed terminal name "+
+      term_name);
+  }
+
+  return term_name;
+}
+
 function get_term_count_for(languageId: string){
   let count = 0;
   let pattern = new RegExp("^"+languageId+"-shell-"+"([0-9]+)$");
@@ -125,13 +163,11 @@ export function activate(context: vscode.ExtensionContext) {
     // panel visible if it is hidden)
   });
 
-  // TODO: create a command to cycle through terminals within a given
-  // language
-
-  // changing to the active terminal also change the terminal associated with
+  // changing to the active terminal also changes the terminal associated with
   // the last edited file, if they're associated with the same language
   terminalChangeEvent = vscode.window.onDidChangeActiveTerminal(
     (terminal: vscode.Terminal | undefined) => {
+      console.table(terminal);
       if(terminal){
         let state: {[key: string]: string;} =
           context.workspaceState.get('terminal-map') || {};
@@ -152,9 +188,41 @@ export function activate(context: vscode.ExtensionContext) {
   // advantage of the new rename API when it exists
   // https://github.com/Microsoft/vscode/issues/43768
 
+  let command = vscode.commands.registerCommand('terminal-run-cd.next-terminal', () => {
+    with_editor(editor => {
+      let languageId = editor.document.languageId;
+      let terminal = get_terminal(context,editor,editor.document.fileName);
+
+      let term_name = "";
+      if(terminal){
+        term_name = cycle_term_number(terminal.name,languageId,1);
+      }else{
+        term_name = languageId+"-shell-1";
+      }
+
+      find_terminal(context,editor,editor.document.fileName,term_name).show();
+    });
+  });
+
+  command = vscode.commands.registerCommand('terminal-run-cd.previous-terminal', () => {
+    with_editor(editor => {
+      let languageId = editor.document.languageId;
+      let terminal = get_terminal(context,editor,editor.document.fileName);
+
+      let term_name = "";
+      if(terminal){
+        term_name = cycle_term_number(terminal.name,languageId,-1);
+      }else{
+        term_name = languageId+"-shell-1";
+      }
+
+      find_terminal(context,editor,editor.document.fileName,term_name).show();
+    });
+  });
+
   // Send commands, respecting the association between files and
   // particular terminals
-  let command = vscode.commands.registerCommand('terminal-run-cd.send-text', () => {
+  command = vscode.commands.registerCommand('terminal-run-cd.send-text', () => {
     with_editor(editor => {
       let terminal = get_terminal(context,editor,editor.document.fileName);
       let sel = editor.selection;

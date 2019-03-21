@@ -14,6 +14,8 @@
   ],
   "activationEvents": [
     "onCommand:terminal-run-cd.open-terminal",
+    "onCommand:terminal-run-cd.next-terminal",
+    "onCommand:terminal-run-cd.previous-terminal",
     "onCommand:terminal-run-cd.new-terminal",
     "onCommand:terminal-run-cd.send-text",
     "onCommand:terminal-run-cd.cd",
@@ -53,6 +55,16 @@
       {
         "command": "terminal-run-cd.send-text",
         "title": "send text",
+        "category": "Terminal Run/CD"
+      },
+      {
+        "command": "terminal-run-cd.next-terminal",
+        "title": "next terminal",
+        "category": "Terminal Run/CD"
+      },
+      {
+        "command": "terminal-run-cd.previous-terminal",
+        "title": "previous terminal",
         "category": "Terminal Run/CD"
       },
       {
