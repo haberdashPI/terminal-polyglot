@@ -34,6 +34,11 @@
         "when": "editorTextFocus"
       },
       {
+        "command": "terminal-run-cd.new-terminal",
+        "key": "ctrl+shift+'",
+        "when": "terminalFocus"
+      },
+      {
         "command": "terminal-run-cd.open-terminal",
         "key": "ctrl+'",
         "when": "editorTextFocus"
