@@ -5,6 +5,12 @@ import * as path from 'path'
 import { TextDecoder } from 'util';
 import { EIDRM } from 'constants';
 
+interface TermLanguageConfig {
+  cd: string;
+  run: string;
+  launch: string;
+}
+
 function with_editor(fn: (editor: vscode.TextEditor) => void){
   let editor = vscode.window.activeTextEditor;
   if(!editor){
@@ -34,9 +40,11 @@ function get_term_count_for(languageId: string){
 }
 
 function create_terminal(context: vscode.ExtensionContext,
-  languageId: string, file: string, name: string): vscode.Terminal {
+  editor: vscode.TextEditor, file: string, name: string): vscode.Terminal {
+  let languageId = editor.document.languageId;
 
   let term = vscode.window.createTerminal(name);
+  term.sendText(language_config(editor).launch);
   let state: {[key: string]: string;} = context.workspaceState.get('terminal-map') || {};
 
   state["file:"+file] = term.name;
@@ -47,11 +55,11 @@ function create_terminal(context: vscode.ExtensionContext,
 }
 
 function find_terminal(context: vscode.ExtensionContext,
-  languageId: string, file: string, name: string): vscode.Terminal {
+  editor: vscode.TextEditor, file: string, name: string): vscode.Terminal {
   for(let term of vscode.window.terminals){
     if(term.name === name){ return term; }
   }
-  return create_terminal(context,languageId,file,name);
+  return create_terminal(context,editor,file,name);
 }
 
 function get_terminal(context: vscode.ExtensionContext,
@@ -64,16 +72,11 @@ function get_terminal(context: vscode.ExtensionContext,
     state["lang:"+languageId];
 
   if(terminal_name !== undefined){
-    return find_terminal(context,languageId,file,terminal_name);
+    return find_terminal(context,editor,file,terminal_name);
   }else{
     let count = get_term_count_for(languageId)+1;
-    return create_terminal(context,languageId,file,languageId+'-shell-'+count);
+    return create_terminal(context,editor,file,languageId+'-shell-'+count);
   }
-}
-
-interface TermLanguageConfig {
-  cd: string;
-  run: string;
 }
 
 function language_config(editor: vscode.TextEditor){
@@ -83,7 +86,7 @@ function language_config(editor: vscode.TextEditor){
   if(l_config){
     return l_config;
   }else{
-    return {cd: "cd \"%\"", run: "./\"%\""};
+    return {cd: "cd \"%\"", run: "./\"%\"", launch: ""};
   }
 }
 
@@ -116,10 +119,9 @@ export function activate(context: vscode.ExtensionContext) {
 
   vscode.window.onDidChangeActiveTextEditor(event => {
     last_editor = vscode.window.activeTextEditor || last_editor;
+    // TODO: change the last active terminal (without making
+    // panel visible if it is hidden)
   });
-
-  // TODO: I need to have a separate terminal open command specific to the
-  // extension (fair enough)
 
   // TODO: create a command to cycle through terminals within a given
   // language
@@ -177,7 +179,7 @@ export function activate(context: vscode.ExtensionContext) {
       let languageId = editor.document.languageId;
 
       let count = get_term_count_for(languageId)+1;
-      let terminal = create_terminal(context,languageId,
+      let terminal = create_terminal(context,editor,
         editor.document.fileName, languageId+'-shell-'+count);
       if(terminal){ terminal.show(); }
     })

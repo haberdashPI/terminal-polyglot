@@ -28,6 +28,11 @@
       "category": "Terminal Run/CD"
     },
     {
+      "command": "terminal-run-cd.new-terminal",
+      "title": "new terminal",
+      "category": "Terminal Run/CD"
+    },
+    {
       "command": "terminal-run-cd.open-terminal",
       "title": "open terminal",
       "category": "Terminal Run/CD"
@@ -57,15 +62,40 @@
           "description": "Language-specific commands to run scripts and change directories",
           "default": {
             "python": {
+              "launch": "python",
               "run": "exec(open(\"%\").read(), globals())",
               "cd": "import os; os.chdir(\"%\")"
             },
-            "clojure": {"run": "(load-file \"%\")", "cd": ""},
-            "julia": {"run": "include(\"%\")", "cd": "cd(\"%\")"},
-            "ruby": {"run": "load '%'", "cd": "Dir.chdir('%')"},
-            "r": {"run": "source(\"%\")", "cd": "setwd(\"%\")"},
-            "matlab": {"run": "run '%'", "cd": "cd '%'" },
-            "javascript": {"run": ".load \"%\"", "cd": "process.chdir(\"%\")"}
+            "clojure": {
+              "launch": "clojure",
+              "run": "(load-file \"%\")",
+              "cd": ""
+            },
+            "julia": {
+              "launch": "julia",
+              "run": "include(\"%\")",
+              "cd": "cd(\"%\")"
+            },
+            "ruby": {
+              "launch": "irb",
+              "run": "load '%'",
+              "cd": "Dir.chdir('%')"
+            },
+            "r": {
+              "launch": "R",
+              "run": "source(\"%\")",
+              "cd": "setwd(\"%\")"
+            },
+            "matlab": {
+              "launch": "matlab",
+              "run": "run '%'",
+              "cd": "cd '%'"
+            },
+            "javascript": {
+              "launch": "node",
+              "run": ".load \"%\"",
+              "cd": "process.chdir(\"%\")"
+            }
           },
           "patternProperties": {
             ".*": { "cd": {"type": "string"}, "run": {"type": "string"} }
