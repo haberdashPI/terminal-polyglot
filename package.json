@@ -1,7 +1,7 @@
 {
   "name": "terminal-polyglot",
   "publisher": "haberdashPI",
-  "repository": "https://github.com/haberdashPI/terminal-run-cd",
+  "repository": "https://github.com/haberdashPI/terminal-polyglot",
   "displayName": "Terminal Polyglot",
   "license": "MIT",
   "description": "Easily manage terminals on a per-language basis.",
