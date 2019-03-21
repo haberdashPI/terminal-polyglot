@@ -1,11 +1,11 @@
 {
-  "name": "terminal-run-cd",
+  "name": "terminal-polyglot",
   "publisher": "haberdashPI",
   "repository": "https://github.com/haberdashPI/terminal-run-cd",
-  "displayName": "Terminal Run/CD",
+  "displayName": "Terminal Polyglot",
   "license": "MIT",
   "description": "Easily manage terminals on a per-language basis.",
-  "version": "0.1.3",
+  "version": "0.2.0",
   "engines": {
     "vscode": "^1.31.0"
   },
@@ -13,35 +13,35 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand:terminal-run-cd.open-terminal",
-    "onCommand:terminal-run-cd.next-terminal",
-    "onCommand:terminal-run-cd.previous-terminal",
-    "onCommand:terminal-run-cd.new-terminal",
-    "onCommand:terminal-run-cd.send-text",
-    "onCommand:terminal-run-cd.cd",
-    "onCommand:terminal-run-cd.global_cd",
-    "onCommand:terminal-run-cd.run"
+    "onCommand:terminal-polyglot.open-terminal",
+    "onCommand:terminal-polyglot.next-terminal",
+    "onCommand:terminal-polyglot.previous-terminal",
+    "onCommand:terminal-polyglot.new-terminal",
+    "onCommand:terminal-polyglot.send-text",
+    "onCommand:terminal-polyglot.cd",
+    "onCommand:terminal-polyglot.global_cd",
+    "onCommand:terminal-polyglot.run"
   ],
   "main": "./out/extension.js",
   "contributes": {
     "keybindings": [
       {
-        "command": "terminal-run-cd.send-text",
+        "command": "terminal-polyglot.send-text",
         "key": "ctrl+shift+enter",
         "when": "editorTextFocus"
       },
       {
-        "command": "terminal-run-cd.new-terminal",
+        "command": "terminal-polyglot.new-terminal",
         "key": "ctrl+shift+'",
         "when": "editorTextFocus"
       },
       {
-        "command": "terminal-run-cd.new-terminal",
+        "command": "terminal-polyglot.new-terminal",
         "key": "ctrl+shift+'",
         "when": "terminalFocus"
       },
       {
-        "command": "terminal-run-cd.open-terminal",
+        "command": "terminal-polyglot.open-terminal",
         "key": "ctrl+'",
         "when": "editorTextFocus"
       },
@@ -53,51 +53,51 @@
     ],
     "commands": [
       {
-        "command": "terminal-run-cd.send-text",
-        "title": "send text",
-        "category": "Terminal Run/CD"
+        "command": "terminal-polyglot.send-text",
+        "title": "Send Text",
+        "category": "Terminal Polyglot"
       },
       {
-        "command": "terminal-run-cd.next-terminal",
-        "title": "next terminal",
-        "category": "Terminal Run/CD"
+        "command": "terminal-polyglot.next-terminal",
+        "title": "Next Terminal",
+        "category": "Terminal Polyglot"
       },
       {
-        "command": "terminal-run-cd.previous-terminal",
-        "title": "previous terminal",
-        "category": "Terminal Run/CD"
+        "command": "terminal-polyglot.previous-terminal",
+        "title": "Previous Terminal",
+        "category": "Terminal Polyglot"
       },
       {
-        "command": "terminal-run-cd.new-terminal",
-        "title": "new terminal",
-        "category": "Terminal Run/CD"
+        "command": "terminal-polyglot.new-terminal",
+        "title": "New Terminal",
+        "category": "Terminal Polyglot"
       },
       {
-        "command": "terminal-run-cd.open-terminal",
-        "title": "open terminal",
-        "category": "Terminal Run/CD"
+        "command": "terminal-polyglot.open-terminal",
+        "title": "Open Terminal",
+        "category": "Terminal Polyglot"
       },
       {
-        "command": "terminal-run-cd.cd",
-        "title": "change directory",
-        "category": "Terminal Run/CD"
+        "command": "terminal-polyglot.cd",
+        "title": "Change Directory",
+        "category": "Terminal Polyglot"
       },
       {
-        "command": "terminal-run-cd.global_cd",
-        "title": "global change directory",
-        "category": "Terminal Run/CD"
+        "command": "terminal-polyglot.global_cd",
+        "title": "Global Change Directory",
+        "category": "Terminal Polyglot"
       },
       {
-        "command": "terminal-run-cd.run",
-        "title": "run file",
-        "category": "Terminal Run/CD"
+        "command": "terminal-polyglot.run",
+        "title": "Run File",
+        "category": "Terminal Polyglot"
       }
     ],
     "configuration": {
       "type": "object",
-      "title": "Terminal Run/CD Configuration",
+      "title": "Terminal Polyglot Configuration",
       "properties": {
-        "terminal-run-cd.language-config": {
+        "terminal-polyglot.language-config": {
           "type": "object",
           "description": "Language-specific commands to run scripts and change directories",
           "default": {

@@ -118,7 +118,7 @@ function get_terminal(context: vscode.ExtensionContext,
 }
 
 function language_config(editor: vscode.TextEditor){
-  let config = vscode.workspace.getConfiguration("terminal-run-cd.language-config");
+  let config = vscode.workspace.getConfiguration("terminal-polyglot.language-config");
 
   let l_config: TermLanguageConfig | undefined = config.get(editor.document.languageId);
   if(l_config){
@@ -154,7 +154,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 	// Use the console to output diagnostic information (console.log) and errors (console.error)
 	// This line of code will only be executed once when your extension is activated
-  console.log('"terminal-run-cd" is now active!');
+  console.log('"terminal-polyglot" is now active!');
   let last_editor = vscode.window.activeTextEditor;
 
   vscode.window.onDidChangeActiveTextEditor(event => {
@@ -188,7 +188,7 @@ export function activate(context: vscode.ExtensionContext) {
   // advantage of the new rename API when it exists
   // https://github.com/Microsoft/vscode/issues/43768
 
-  let command = vscode.commands.registerCommand('terminal-run-cd.next-terminal', () => {
+  let command = vscode.commands.registerCommand('terminal-polyglot.next-terminal', () => {
     with_editor(editor => {
       let languageId = editor.document.languageId;
       let terminal = get_terminal(context,editor,editor.document.fileName);
@@ -204,7 +204,7 @@ export function activate(context: vscode.ExtensionContext) {
     });
   });
 
-  command = vscode.commands.registerCommand('terminal-run-cd.previous-terminal', () => {
+  command = vscode.commands.registerCommand('terminal-polyglot.previous-terminal', () => {
     with_editor(editor => {
       let languageId = editor.document.languageId;
       let terminal = get_terminal(context,editor,editor.document.fileName);
@@ -222,7 +222,7 @@ export function activate(context: vscode.ExtensionContext) {
 
   // Send commands, respecting the association between files and
   // particular terminals
-  command = vscode.commands.registerCommand('terminal-run-cd.send-text', () => {
+  command = vscode.commands.registerCommand('terminal-polyglot.send-text', () => {
     with_editor(editor => {
       let terminal = get_terminal(context,editor,editor.document.fileName);
       let sel = editor.selection;
@@ -246,7 +246,7 @@ export function activate(context: vscode.ExtensionContext) {
   });
   context.subscriptions.push(command);
 
-  command = vscode.commands.registerCommand('terminal-run-cd.new-terminal', () => {
+  command = vscode.commands.registerCommand('terminal-polyglot.new-terminal', () => {
     with_editor(editor => {
       let languageId = editor.document.languageId;
 
@@ -258,7 +258,7 @@ export function activate(context: vscode.ExtensionContext) {
   });
   context.subscriptions.push(command);
 
-  command = vscode.commands.registerCommand('terminal-run-cd.open-terminal', () => {
+  command = vscode.commands.registerCommand('terminal-polyglot.open-terminal', () => {
     with_editor(editor => {
       let terminal = get_terminal(context,editor,editor.document.fileName);
       if(terminal){ terminal.show(); }
@@ -268,7 +268,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 
 	// Change directory, as if we were in a bash or DOS terminal
-	command = vscode.commands.registerCommand('terminal-run-cd.global_cd', () => {
+	command = vscode.commands.registerCommand('terminal-polyglot.global_cd', () => {
     with_editor(editor => {
       with_file_path(editor, file => {
         let dir = path.dirname(file);
@@ -282,7 +282,7 @@ export function activate(context: vscode.ExtensionContext) {
   });
   context.subscriptions.push(command);
 
-  command = vscode.commands.registerCommand('terminal-run-cd.cd', () => {
+  command = vscode.commands.registerCommand('terminal-polyglot.cd', () => {
     with_editor(editor => {
       with_file_path(editor, file => {
         let dir = path.dirname(file);
@@ -296,7 +296,7 @@ export function activate(context: vscode.ExtensionContext) {
     });
   });
 
-  command = vscode.commands.registerCommand('terminal-run-cd.run', () => {
+  command = vscode.commands.registerCommand('terminal-polyglot.run', () => {
     with_editor(editor => {
       with_file_path(editor, file => {
         let pattern = language_config(editor).run;
