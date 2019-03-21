@@ -1,7 +1,7 @@
 # Terminal Polyglot
 
 An extension that makes working with multiple programming languages and the
-bulit-in VSCode terminal a little more streamlined. Provided are a set of
+bulit-in [Visual Studio Code](https://code.visualstudio.com/) terminal a little more streamlined. Provided are a set of
 terminal commands that are specific to each language mode. That way
 when you send code from one language it gets sent to different interactive
 terminal then code you send from another language.
