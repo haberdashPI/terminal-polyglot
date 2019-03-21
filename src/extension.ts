@@ -154,9 +154,11 @@ export function activate(context: vscode.ExtensionContext) {
       let sel = editor.selection;
       let text = "";
       if(sel.isEmpty){
-        // TODO: this is where I last had problems if this is on the very last
-        // line at the end we might get the "next" line, which doesn't exist
-        text = editor.document.lineAt(sel.active.line).text;
+        if(editor.document.lineCount < sel.active.line){
+          text = editor.document.lineAt(sel.active.line-1).text;
+        }else{
+          text = editor.document.lineAt(sel.active.line).text;
+        }
       }else{
         text = editor.document.getText(sel);
       }
