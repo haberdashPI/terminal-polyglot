@@ -82,6 +82,7 @@ instead of `python` you could configure python as follows:
     "run": "%%run \"%\"",
     "cd": "%%cd \"%\""
 }
+```
 
 ## Status
 
