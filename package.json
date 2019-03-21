@@ -5,7 +5,7 @@
   "displayName": "Terminal Run/CD",
   "license": "MIT",
   "description": "Easily manage terminals on a per-language basis.",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "engines": {
     "vscode": "^1.31.0"
   },
@@ -115,7 +115,7 @@
               "cd": "cd '%'"
             },
             "typescript": {
-              "launch": "tsnode",
+              "launch": "ts-node",
               "run": ".load \"%\"",
               "cd": "process.chdir(\"%\")"
             },
