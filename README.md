@@ -22,7 +22,7 @@ You can:
 
 Settings for each language are specified by `terminal-polyglot.language-config`.
 
-The settings specify how to run files, change directory and launch a REPL.
+The settings specify how to run files, change directories and launch a REPL.
 
 The default value is:
 
