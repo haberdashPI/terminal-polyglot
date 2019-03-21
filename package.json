@@ -5,7 +5,7 @@
   "displayName": "Terminal Run/CD",
   "license": "MIT",
   "description": "Easily manage terminals on a per-language basis.",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "engines": {
     "vscode": "^1.31.0"
   },
@@ -154,7 +154,7 @@
     "@types/node": "^10.12.21",
     "tslint": "^5.12.1",
     "typescript": "^3.3.1",
-    "vscode": "^1.1.28"
+    "vscode": "^1.1.32"
   },
   "dependencies": {}
 }
