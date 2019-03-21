@@ -74,4 +74,4 @@ The default value is:
 ## Status
 
 I am using the extension for my everyday work. Please feel free to report
-an issue you find with the extension.
+an issues you find with this extension.
