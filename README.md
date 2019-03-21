@@ -87,4 +87,4 @@ instead of `python` you could configure python as follows:
 ## Status
 
 I am using the extension for my everyday work. Please feel free to report
-an issues you find with this extension.
+any issues you find with this extension.
