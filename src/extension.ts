@@ -167,7 +167,6 @@ export function activate(context: vscode.ExtensionContext) {
   // the last edited file, if they're associated with the same language
   terminalChangeEvent = vscode.window.onDidChangeActiveTerminal(
     (terminal: vscode.Terminal | undefined) => {
-      console.table(terminal);
       if(terminal){
         let state: {[key: string]: string;} =
           context.workspaceState.get('terminal-map') || {};
