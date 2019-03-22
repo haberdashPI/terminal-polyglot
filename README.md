@@ -78,7 +78,7 @@ instead of `python` you could configure python as follows:
 
 ```json
 "python": {
-    "launch": "python",
+    "launch": "ipython",
     "run": "%%run \"%\"",
     "cd": "%%cd \"%\""
 }
