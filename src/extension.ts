@@ -82,7 +82,8 @@ function create_terminal(context: vscode.ExtensionContext,
   let languageId = editor.document.languageId;
 
   let term = vscode.window.createTerminal(name);
-  term.sendText(language_config(editor).launch);
+  let launch = language_config(editor).launch
+  if(launch.length > 0){ term.sendText(launch); }
   let state: {[key: string]: string;} = context.workspaceState.get('terminal-map') || {};
 
   state["file:"+file] = term.name;
