@@ -77,13 +77,20 @@ function get_term_count_for(languageId: string){
   return count;
 }
 
+// enclose all terminal text in bracketed paste mode
+function send_text(term: vscode.Terminal, text: string){
+  // TODO: this doesn't seem to work yet
+  // term.sendText("\e[200~"+text+"\e[201~")
+  term.sendText(text)
+}
+
 function create_terminal(context: vscode.ExtensionContext,
   editor: vscode.TextEditor, file: string, name: string): vscode.Terminal {
   let languageId = editor.document.languageId;
 
   let term = vscode.window.createTerminal(name);
   let launch = language_config(editor).launch
-  if(launch.length > 0){ term.sendText(launch); }
+  if(launch.length > 0){ send_text(term,launch); }
   let state: {[key: string]: string;} = context.workspaceState.get('terminal-map') || {};
 
   state["file:"+file] = term.name;
@@ -237,7 +244,7 @@ export function activate(context: vscode.ExtensionContext) {
         text = editor.document.getText(sel);
       }
       if(terminal){
-        terminal.sendText(text);
+        send_text(terminal,text);
         terminal.show(true);
         let pos = new vscode.Position(sel.end.line+1,0);
         editor.selection = new vscode.Selection(pos,pos);
@@ -274,7 +281,7 @@ export function activate(context: vscode.ExtensionContext) {
         let dir = path.dirname(file);
         let terminal = get_terminal(context,editor,file);
         if(terminal){
-          terminal.sendText('cd "' + dir + '"');
+          send_text(terminal,'cd "' + dir + '"');
           terminal.show();
         }
       });
@@ -289,7 +296,7 @@ export function activate(context: vscode.ExtensionContext) {
         let pattern = language_config(editor).cd;
         let terminal = get_terminal(context,editor,file);
         if(terminal){
-          terminal.sendText(replace_wildcard(pattern,dir));
+          send_text(terminal,replace_wildcard(pattern,dir));
           terminal.show();
         }
       });
@@ -302,7 +309,7 @@ export function activate(context: vscode.ExtensionContext) {
         let pattern = language_config(editor).run;
         let terminal = get_terminal(context,editor,file);
         if(terminal){
-          terminal.sendText(replace_wildcard(pattern,file));
+          send_text(terminal,replace_wildcard(pattern,file));
           terminal.show();
         }
       });
