@@ -246,7 +246,7 @@ export function activate(context: vscode.ExtensionContext) {
       if(terminal){
         send_text(terminal,text);
         terminal.show(true);
-        let pos = new vscode.Position(sel.end.line+1,0);
+        let pos = new vscode.Position(sel.end.line+1,sel.end.line+1);
         editor.selection = new vscode.Selection(pos,pos);
       }
     });
