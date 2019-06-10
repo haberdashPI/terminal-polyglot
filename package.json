@@ -84,7 +84,7 @@
       },
       {
         "command": "terminal-polyglot.global_cd",
-        "title": "Global Change Directory",
+        "title": "Change Shell Directory",
         "category": "Terminal Polyglot"
       },
       {
