@@ -282,7 +282,7 @@ export function activate(context: vscode.ExtensionContext) {
         let terminal = get_terminal(context,editor,file);
         if(terminal){
           send_text(terminal,'cd "' + dir + '"');
-          terminal.show();
+          terminal.show(true);
         }
       });
     });
@@ -297,7 +297,7 @@ export function activate(context: vscode.ExtensionContext) {
         let terminal = get_terminal(context,editor,file);
         if(terminal){
           send_text(terminal,replace_wildcard(pattern,dir));
-          terminal.show();
+          terminal.show(true);
         }
       });
     });
