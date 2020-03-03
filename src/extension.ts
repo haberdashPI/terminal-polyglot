@@ -90,6 +90,7 @@ function create_terminal(context: vscode.ExtensionContext,
 
   let term = vscode.window.createTerminal(name);
   let workspace_name = vscode.workspace.name ? vscode.workspace.name+"-" : "";
+  workspace_name = workspace_name.replace(/\s+\(Workspace\)/,'-workspace');
   let session_name = workspace_name+name;
   let launch = replace_wildcard(language_config(editor).launch,session_name);
   if(launch.length > 0){ send_text(term,launch); }

@@ -99,42 +99,42 @@ use the following settings:
 ```json
 "terminal-polyglot.language-config": {
     "python": {
-        "launch": "tmux new-session -A -s % python ",
+        "launch": "tmux new-session -A -s '%' python ",
         "run": "exec(open(\"%\").read(), globals())",
         "cd": "import os; os.chdir(\"%\")"
     },
     "clojure": {
-        "launch": "tmux new-session -A -s % clojure",
+        "launch": "tmux new-session -A -s '%' clojure",
         "run": "(load-file \"%\")",
         "cd": ""
     },
     "julia": {
-        "launch": "tmux new-session -A -s % julia",
+        "launch": "tmux new-session -A -s '%' julia",
         "run": "include(\"%\")",
         "cd": "cd(\"%\")"
     },
     "ruby": {
-        "launch": "tmux new-session -A -s % irb",
+        "launch": "tmux new-session -A -s '%' irb",
         "run": "load '%'",
         "cd": "Dir.chdir('%')"
     },
     "r": {
-        "launch": "tmux new-session -A -s % R",
+        "launch": "tmux new-session -A -s '%' R",
         "run": "source(\"%\")",
         "cd": "setwd(\"%\")"
     },
     "matlab": {
-        "launch": "tmux new-session -A -s % matlab",
+        "launch": "tmux new-session -A -s '%' matlab",
         "run": "run '%'",
         "cd": "cd '%'"
     },
     "typescript": {
-        "launch": "tmux new-session -A -s % ts-node",
+        "launch": "tmux new-session -A -s '%' ts-node",
         "run": ".load \"%\"",
         "cd": "process.chdir(\"%\")"
     },
     "javascript": {
-        "launch": "tmux new-session -A -s % node",
+        "launch": "tmux new-session -A -s '%' node",
         "run": ".load \"%\"",
         "cd": "process.chdir(\"%\")"
     }
