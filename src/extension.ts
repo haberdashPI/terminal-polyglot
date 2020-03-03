@@ -89,7 +89,9 @@ function create_terminal(context: vscode.ExtensionContext,
   let languageId = editor.document.languageId;
 
   let term = vscode.window.createTerminal(name);
-  let launch = language_config(editor).launch
+  let workspace_name = vscode.workspace.name ? vscode.workspace.name+"-" : "";
+  let session_name = workspace_name+name;
+  let launch = replace_wildcard(language_config(editor).launch,session_name);
   if(launch.length > 0){ send_text(term,launch); }
   let state: {[key: string]: string;} = context.workspaceState.get('terminal-map') || {};
 
