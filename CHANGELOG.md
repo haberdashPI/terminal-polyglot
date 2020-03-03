@@ -3,6 +3,9 @@ All notable changes to the "terminal-polyglot" extension will be documented in t
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [0.3.1]
+- **Improved terminal session names**: uses "-workspace" rather than " (Workspace)"
+
 ## [0.3.0]
 - **Persistent terminal sessions**: the wildcard symbol is replaced with the name
   of the workspace and terminal when placed in a `launch` entry. This lets
