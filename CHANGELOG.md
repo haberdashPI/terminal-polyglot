@@ -3,6 +3,14 @@ All notable changes to the "terminal-polyglot" extension will be documented in t
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [0.3.0]
+- **Persistent terminal sessions**: the wildcard symbol is replaced with the name
+  of the workspace and terminal when placed in a `launch` entry. This lets
+  you use `screen` or `tmux` to create persistent terminal sessions.
+  See README for details.
+- **Revised terminal focus**: when calling `cd` commands the terminal no longer
+  steals the focus.
+
 ## [0.2.4]
 - Fixed an poorly named command.
 

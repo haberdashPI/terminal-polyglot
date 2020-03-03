@@ -1,10 +1,13 @@
 # Terminal Polyglot
 
 An extension that makes working with multiple programming languages and the
-built-in [Visual Studio Code](https://code.visualstudio.com/) terminal a little more streamlined. Provided are a set of
-terminal commands that are specific to each language mode. That way
-when you send code from one language it gets sent to a different interactive
-terminal than code you send from another language.
+built-in [Visual Studio Code](https://code.visualstudio.com/) terminal a little
+more streamlined. Provided are a set of terminal commands that are specific to
+each language mode. That way when you send code from one language it gets sent
+to a different interactive terminal than code you send from another language.
+
+As an added bonus, the extension allows for persistent terminal sessions using
+`tmux` or `screen`. (See below)
 
 You can:
 
@@ -71,7 +74,9 @@ The default value is:
 }
 ```
 
-When running a command, The wildcard character `%` is replaced with the
+## Wildcards
+
+When calling `run` or `cd`, The wildcard character `%` is replaced with the
 directory or filename as appropriate. You can include `%` characters in the
 string sent to the terminal by using it twice. For example, to use `ipython`
 instead of `python` you could configure python as follows:
@@ -84,7 +89,59 @@ instead of `python` you could configure python as follows:
 }
 ```
 
+### Persistent terminal sessions
+
+When present, the wildcard is replaced with the name of the workspace and
+terminal when calling `launch`. This lets you create persistent terminal
+sessions.  For example, to use tmux to maintain your terminal state, you could
+use the following settings:
+
+```json
+"terminal-polyglot.language-config": {
+    "python": {
+        "launch": "tmux new-session -A -s % python ",
+        "run": "exec(open(\"%\").read(), globals())",
+        "cd": "import os; os.chdir(\"%\")"
+    },
+    "clojure": {
+        "launch": "tmux new-session -A -s % clojure",
+        "run": "(load-file \"%\")",
+        "cd": ""
+    },
+    "julia": {
+        "launch": "tmux new-session -A -s % julia",
+        "run": "include(\"%\")",
+        "cd": "cd(\"%\")"
+    },
+    "ruby": {
+        "launch": "tmux new-session -A -s % irb",
+        "run": "load '%'",
+        "cd": "Dir.chdir('%')"
+    },
+    "r": {
+        "launch": "tmux new-session -A -s % R",
+        "run": "source(\"%\")",
+        "cd": "setwd(\"%\")"
+    },
+    "matlab": {
+        "launch": "tmux new-session -A -s % matlab",
+        "run": "run '%'",
+        "cd": "cd '%'"
+    },
+    "typescript": {
+        "launch": "tmux new-session -A -s % ts-node",
+        "run": ".load \"%\"",
+        "cd": "process.chdir(\"%\")"
+    },
+    "javascript": {
+        "launch": "tmux new-session -A -s % node",
+        "run": ".load \"%\"",
+        "cd": "process.chdir(\"%\")"
+    }
+}
+```
+
 ## Status
 
-I am using the extension for my everyday work. Please feel free to report
+This should be working well; I use it every day. Please feel free to report
 any issues you find with this extension.
