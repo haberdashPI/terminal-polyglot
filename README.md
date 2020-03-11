@@ -57,7 +57,7 @@ The default value is:
         "cd": "setwd(\"%\")"
     },
     "matlab": {
-        "launch": "matlab",
+        "launch": "matlab -nodesktop -nosplash",
         "run": "run '%'",
         "cd": "cd '%'"
     },
@@ -124,7 +124,7 @@ use the following settings:
         "cd": "setwd(\"%\")"
     },
     "matlab": {
-        "launch": "tmux new-session -A -s '%' matlab",
+        "launch": "tmux new-session -A -s '%' matlab -nodesktop -nosplas",
         "run": "run '%'",
         "cd": "cd '%'"
     },

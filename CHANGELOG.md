@@ -3,6 +3,9 @@ All notable changes to the "terminal-polyglot" extension will be documented in t
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [0.3.2]
+- **Improved default MATLAB command**: adds `-nosplash` and `-nodesktop`
+
 ## [0.3.1]
 - **Improved terminal session names**: uses "-workspace" rather than " (Workspace)"
 

@@ -5,7 +5,7 @@
   "displayName": "Terminal Polyglot",
   "license": "MIT",
   "description": "Easily manage terminals on a per-language basis.",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "engines": {
     "vscode": "^1.31.0"
   },
@@ -127,7 +127,7 @@
               "cd": "setwd(\"%\")"
             },
             "matlab": {
-              "launch": "matlab",
+              "launch": "matlab -nodesktop -nosplash",
               "run": "run '%'",
               "cd": "cd '%'"
             },
