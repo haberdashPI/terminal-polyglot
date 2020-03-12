@@ -282,6 +282,7 @@ export function activate(context: vscode.ExtensionContext) {
     with_editor(editor => {
       with_file_path(editor, file => {
         let dir = path.dirname(file);
+        dir = dir.replace("\\","\\\\");
         let terminal = get_terminal(context,editor,file);
         if(terminal){
           send_text(terminal,'cd "' + dir + '"');
@@ -296,6 +297,7 @@ export function activate(context: vscode.ExtensionContext) {
     with_editor(editor => {
       with_file_path(editor, file => {
         let dir = path.dirname(file);
+        dir = dir.replace("\\","\\\\");
         let pattern = language_config(editor).cd;
         let terminal = get_terminal(context,editor,file);
         if(terminal){
@@ -310,6 +312,7 @@ export function activate(context: vscode.ExtensionContext) {
     with_editor(editor => {
       with_file_path(editor, file => {
         let pattern = language_config(editor).run;
+        file = file.replace("\\","\\\\");
         let terminal = get_terminal(context,editor,file);
         if(terminal){
           send_text(terminal,replace_wildcard(pattern,file));
