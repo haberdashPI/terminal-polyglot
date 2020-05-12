@@ -1,29 +1,38 @@
 # Terminal Polyglot
 
-An extension that makes working with multiple programming languages and the
-built-in [Visual Studio Code](https://code.visualstudio.com/) terminal a little
-more streamlined. Provided are a set of terminal commands that are specific to
-each language mode. That way when you send code from one language it gets sent
-to a different interactive terminal than code you send from another language.
+This extension provides a set of commands for sending text to a terminal
+specific to the programming language of the current file. It associates each
+file with a language-specific terminal instance: any command you issue through
+the extension are sent to that terminal.
 
-As an added bonus, the extension allows for persistent terminal sessions using
-`tmux` or `screen`. (See below)
+The extension allows for multiple terminals per language, and persistent
+terminal sessions via `tmux` or `screen. If multiple terminals are present for a given a language, text sent from a given file will be sent to the last terminal used with that file.
 
-You can:
+The commands include:
 
-* Open an existing or new terminal specific to the language mode (default key `Ctrl+'`), launching
-  an interactive REPL specific to the language, if specified.
+* Open an existing terminal (or new terminal if none exists) specific to the language mode of the current file (default key `Ctrl+'`).
 * Open a new terminal specific to the language (default key `Ctrl+Shift'`).
-* Send lines of code to the language-specific terminal (default key `Ctrl+Shift+Enter`), opening
-    the terminal and launching the REPL if necessary.
+* Open the Nth language-specific terminal, creating it if it does not exists (command `Terminal Polyglot: Open Terminal...`)
+* Send lines of code to the language-specific terminal (default key `Ctrl+Shift+Enter`), opening the terminal and launching the REPL if necessary.
 * Cycle through all terminals for a specific language (command `Terminal Polyglot: Next Terminal`)
 * Change directory to file location at the interactive REPL (command `Terminal Polyglot: Change Directory`)
 * Run the entire file in the interactive REPL (command `Terminal Polyglot: Run File`)
 * Change directory to file location in a shell (command `Terminal Polyglot: Change Shell Directory`)
 
+The `Open Terminal...` command can also determine the terminal to open using an `index` argument. For example:
+
+```json
+{
+    "command": "terminal-polyglot.open-terminal-N",
+    "args": { "index": 2 },
+    "key": "shift+cmd+2",
+    "when": "editorTextFocus"
+}
+```
+
 ## Extension Settings
 
-Settings for each language are specified by `terminal-polyglot.language-config`.
+Settings for each language are specified using `terminal-polyglot.language-config`.
 
 The settings specify how to run files, change directories and launch a REPL.
 
@@ -74,9 +83,12 @@ The default value is:
 }
 ```
 
+If you have additional languages you'd like included in the default settings
+please file an issue or create a PR.
+
 ## Wildcards
 
-When calling `run` or `cd`, The wildcard character `%` is replaced with the
+When calling `run` or `cd`, the wildcard character `%` is replaced with the
 directory or filename as appropriate. You can include `%` characters in the
 string sent to the terminal by using it twice. For example, to use `ipython`
 instead of `python` you could configure python as follows:
@@ -91,10 +103,10 @@ instead of `python` you could configure python as follows:
 
 ### Persistent terminal sessions
 
-When present, the wildcard is replaced with the name of the workspace and
-terminal when calling `launch`. This lets you create persistent terminal
-sessions.  For example, to use tmux to maintain your terminal state, you could
-use the following settings:
+When present, a wildcard in `launch` is replaced with the name of the workspace
+and terminal. This lets you create persistent terminal sessions using this name.
+For example, to use tmux to maintain your terminal state, you could use the
+following settings:
 
 ```json
 "terminal-polyglot.language-config": {

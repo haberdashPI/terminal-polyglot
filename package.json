@@ -2,10 +2,11 @@
   "name": "terminal-polyglot",
   "publisher": "haberdashPI",
   "repository": "https://github.com/haberdashPI/terminal-polyglot",
+  "icon": "icon.png",
   "displayName": "Terminal Polyglot",
   "license": "MIT",
   "description": "Easily manage terminals on a per-language basis.",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "engines": {
     "vscode": "^1.31.0"
   },
@@ -17,6 +18,7 @@
     "onCommand:terminal-polyglot.next-terminal",
     "onCommand:terminal-polyglot.previous-terminal",
     "onCommand:terminal-polyglot.new-terminal",
+    "onCommand:terminal-polyglot.open-terminal-N",
     "onCommand:terminal-polyglot.send-text",
     "onCommand:terminal-polyglot.cd",
     "onCommand:terminal-polyglot.global_cd",
@@ -60,6 +62,11 @@
       {
         "command": "terminal-polyglot.next-terminal",
         "title": "Next Terminal",
+        "category": "Terminal Polyglot"
+      },
+      {
+        "command": "terminal-polyglot.open-terminal-N",
+        "title": "Open Terminal...",
         "category": "Terminal Polyglot"
       },
       {

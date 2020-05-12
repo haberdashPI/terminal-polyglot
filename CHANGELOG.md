@@ -1,6 +1,11 @@
 # Change Log
 All notable changes to the "terminal-polyglot" extension will be documented in this file.
 
+
+## [0.3.3]
+- **New command: Open the Nth terminal**: terminal number can be specified interactively or as a command argument.
+- **Bugfix: better handling of windows paths**: Applies proper escaping of `\` symbols.
+
 ## [0.3.2]
 - **Improved default MATLAB command**: adds `-nosplash` and `-nodesktop`
 

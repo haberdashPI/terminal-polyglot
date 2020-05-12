@@ -4,6 +4,7 @@ import * as vscode from 'vscode';
 import * as path from 'path'
 import { TextDecoder } from 'util';
 import { EIDRM } from 'constants';
+import { once } from 'cluster';
 
 interface TermLanguageConfig {
   cd: string;
@@ -214,6 +215,7 @@ export function activate(context: vscode.ExtensionContext) {
     });
   });
 
+
   command = vscode.commands.registerCommand('terminal-polyglot.previous-terminal', () => {
     with_editor(editor => {
       let languageId = editor.document.languageId;
@@ -265,6 +267,37 @@ export function activate(context: vscode.ExtensionContext) {
         editor.document.fileName, languageId+'-shell-'+count);
       if(terminal){ terminal.show(); }
     })
+  });
+  context.subscriptions.push(command);
+
+  command = vscode.commands.registerCommand('terminal-polyglot.open-terminal-N', (args?: {index: Number}) => {
+    with_editor(editor => {
+      let languageId = editor.document.languageId;
+
+      let index = args?.index;
+      if(index === undefined){
+        vscode.window.showInputBox({
+          prompt: "Enter a number: ",
+            validateInput: (str: string) => {
+            if(!/[0-9]+/.test(str)){
+              return "You must enter a number.";
+            }
+            return undefined;
+          }
+        }).then((entry?: string) => {
+          if(entry !== undefined){
+            index = Number(entry);
+            let terminal = create_terminal(context,editor,
+              editor.document.fileName, languageId+'-shell-'+index);
+            if(terminal){ terminal.show(); }
+          }
+        });
+      }else{
+        let terminal = create_terminal(context,editor,
+          editor.document.fileName, languageId+'-shell-'+index);
+        if(terminal){ terminal.show(); }
+      }
+    });
   });
   context.subscriptions.push(command);
 
