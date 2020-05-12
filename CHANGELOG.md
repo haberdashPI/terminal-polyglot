@@ -1,6 +1,11 @@
 # Change Log
 All notable changes to the "terminal-polyglot" extension will be documented in this file.
 
+## [0.3.4]
+
+- **Fixed developer dependency vulnerability**: upgraded to newer VSCode
+setup.
+- **Revised README**: to clean up and clarify some language.
 
 ## [0.3.3]
 - **New command: Open the Nth terminal**: terminal number can be specified interactively or as a command argument.
