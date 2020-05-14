@@ -3,6 +3,12 @@ All notable changes to the "terminal-polyglot" extension will be documented in t
 
 ## [0.3.4]
 
+- **Better remote host terminal names**: The name sent to `launch` now excludes
+  the host suffix in the workspace name. This isn't necessary because different
+  remote hosts will have different tmux/screen environments.
+
+## [0.3.4]
+
 - **Fixed developer dependency vulnerability**: upgraded to newer VSCode
 setup.
 - **Revised README**: to clean up and clarify some language.
