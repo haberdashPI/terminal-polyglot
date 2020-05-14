@@ -90,9 +90,16 @@ function create_terminal(context: vscode.ExtensionContext,
   let languageId = editor.document.languageId;
 
   let term = vscode.window.createTerminal(name);
-  let workspace_name = vscode.workspace.name ? vscode.workspace.name+"-" : "";
+  let workspace_name = vscode.workspace.name ? vscode.workspace.name : "";
   workspace_name = workspace_name.replace(/\s+\(Workspace\)/,'-workspace');
-  let session_name = workspace_name+name;
+
+  // text in [ ] at the end of the name identifies the remote server of the
+  // workspace. We don't need the name we use to disambiguate between different
+  // remote spaces, since by necessity tmux or screen will have a different
+  // environment in different remote locations
+  workspace_name = workspace_name.replace(/ \[.*\]$/,'');
+
+  let session_name = workspace_name+"-"+name;
   let launch = replace_wildcard(language_config(editor).launch,session_name);
   if(launch.length > 0){ send_text(term,launch); }
   let state: {[key: string]: string;} = context.workspaceState.get('terminal-map') || {};
