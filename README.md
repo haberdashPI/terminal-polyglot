@@ -14,9 +14,9 @@ The commands include:
 
 * Open an existing terminal specific to the language of the current file (default key `Ctrl+'`). If no terminal exists for that language, a new one is created.
 * Open a new terminal specific to the language of the current file (default key `Ctrl+Shift'`). A new [REPL](https://en.wikipedia.org/wiki/Read%E2%80%93eval%E2%80%93print_loop) is launched.
+* Cycle through all terminals for a specific language (command `Terminal Polyglot: Next Terminal` and `Termianl Polyglot: Previous Terminal`)
 * Open the Nth language-specific terminal, creating it if it does not exist (command `Terminal Polyglot: Open Terminal...`)
-* Send lines of code to the language-specific terminal (default key `Ctrl+Shift+Enter`), opening the terminal and launching a REPL for that language.
-* Cycle through all terminals for a specific language (command `Terminal Polyglot: Next Terminal`)
+* Send lines of code to the language-specific terminal (default key `Ctrl+Shift+Enter`), opening the terminal and launching a REPL for that language if necessary.
 * Send a command to change the directory to the current file's location (command `Terminal Polyglot: Change Directory`)
 * Send a command to run the entire file (command `Terminal Polyglot: Run File`).
 * Change directory to file location in a shell (command `Terminal Polyglot: Change Shell Directory`)
