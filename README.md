@@ -34,6 +34,13 @@ The `Open Terminal...` command can also determine the terminal to open using an 
 
 ## Extension Settings
 
+If you are on a unix-like system, or WSL, I highly recommend using the bracketed
+paste mode, by enabling "Escape text using 'paste mode'"
+(`terminal-polyglot.escape-sent-text`). This lets terminals know that text sent
+from a file hasn't been manually entered. It will disable various
+auto-formatting features that can be a problem when sending text from a file in
+some terminals and REPLs.
+
 Settings for each language are specified using `terminal-polyglot.language-config`.
 
 The settings specify how to run files, change directories and launch a REPL.

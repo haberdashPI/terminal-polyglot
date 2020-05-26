@@ -1,6 +1,12 @@
 # Change Log
 All notable changes to the "terminal-polyglot" extension will be documented in this file.
 
+## [0.3.5]
+- **More robust send-text behavior for unix systems**: Sends the appropriate
+[bracketed paste escape sequences](https://cirw.in/blog/bracketed-paste).
+False by default to avoid issues with terminals that can't handle this sequence
+ (e.g. Windows).
+
 ## [0.3.4]
 
 - **Better remote host terminal names**: The name sent to `launch` now excludes

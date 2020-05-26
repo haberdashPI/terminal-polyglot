@@ -80,9 +80,9 @@ function get_term_count_for(languageId: string){
 
 // enclose all terminal text in bracketed paste mode
 function send_text(term: vscode.Terminal, text: string){
-  // TODO: this doesn't seem to work yet
-  // term.sendText("\e[200~"+text+"\e[201~")
+  escapeText && term.sendText("\x1B[200~")
   term.sendText(text)
+  escapeText && term.sendText("\x1B[201")
 }
 
 function create_terminal(context: vscode.ExtensionContext,
@@ -167,11 +167,31 @@ function get_term_languageId(terminal: vscode.Terminal){
 
 let terminalChangeEvent: vscode.Disposable | undefined = undefined;
 
+let escapeText: boolean = true;
+
+function updateEscape(event?: vscode.ConfigurationChangeEvent){
+    if(!event || event.affectsConfiguration("terminal-polyglot")){
+        let config = vscode.workspace.getConfiguration("terminal-polyglot");
+        let maybeEscapeText = config.get<boolean>("escape-send-text")
+        escapeText = maybeEscapeText === undefined ? true : maybeEscapeText;
+    }
+}
+
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
 
-	// Use the console to output diagnostic information (console.log) and errors (console.error)
+    // TODO: create a way to define regex's in settings.json
+
+
+// this method is called when your extension is activated
+// your extension is activated the very first time the command is executed
+export function activate(context: vscode.ExtensionContext) {
+
+  updateEscape();
+  vscode.workspace.onDidChangeConfiguration(updateEscape);
+
+// Use the console to output diagnostic information (console.log) and errors (console.error)
 	// This line of code will only be executed once when your extension is activated
   console.log('"terminal-polyglot" is now active!');
   let last_editor = vscode.window.activeTextEditor;

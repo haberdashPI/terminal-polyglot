@@ -104,6 +104,11 @@
       "type": "object",
       "title": "Terminal Polyglot Configuration",
       "properties": {
+        "terminal-polyglot.escape-sent-text": {
+          "type": "boolean",
+          "description": "Escape text using 'paste mode'",
+          "default": false
+        },
         "terminal-polyglot.language-config": {
           "type": "object",
           "description": "Language-specific commands to run scripts and change directories",
