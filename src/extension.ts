@@ -80,9 +80,9 @@ function get_term_count_for(languageId: string){
 
 // enclose all terminal text in bracketed paste mode
 function send_text(term: vscode.Terminal, text: string){
-  escapeText && term.sendText("\x1B[200~")
+  escapeText && term.sendText("\x1B[200~",false)
   term.sendText(text)
-  escapeText && term.sendText("\x1B[201~")
+  escapeText && term.sendText("\x1B[201~",false)
 }
 
 function create_terminal(context: vscode.ExtensionContext,
@@ -172,7 +172,8 @@ let escapeText: boolean = true;
 function updateEscape(event?: vscode.ConfigurationChangeEvent){
     if(!event || event.affectsConfiguration("terminal-polyglot")){
         let config = vscode.workspace.getConfiguration("terminal-polyglot");
-        let maybeEscapeText = config.get<boolean>("escape-send-text")
+        const platform = process.platform as "win32" | "darwin" | "linux";
+        let maybeEscapeText = config.get<boolean>("escape-send-text."+platform)
         escapeText = maybeEscapeText === undefined ? true : maybeEscapeText;
     }
 }

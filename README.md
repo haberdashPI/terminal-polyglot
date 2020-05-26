@@ -50,9 +50,9 @@ The default value is:
 ```json
 "terminal-polyglot.language-config": {
     "python": {
-        "launch": "python",
-        "run": "exec(open(\"%\").read(), globals())",
-        "cd": "import os; os.chdir(\"%\")"
+        "launch": "ipython",
+        "run": "%%run \"%\"",
+        "cd": "%%cd \"%\""
     },
     "clojure": {
         "launch": "clojure",
@@ -99,16 +99,8 @@ please file an issue or create a PR.
 
 When calling `run` or `cd`, the wildcard character `%` is replaced with the
 directory or filename as appropriate. You can include `%` characters in the
-string sent to the terminal by using it twice. For example, to use `ipython`
-instead of `python` you could configure python as follows:
-
-```json
-"python": {
-    "launch": "ipython",
-    "run": "%%run \"%\"",
-    "cd": "%%cd \"%\""
-}
-```
+string sent to the terminal by using it twice. This is used, for example, in the
+default python commands listed above.
 
 ### Persistent terminal sessions
 
@@ -120,9 +112,9 @@ following settings:
 ```json
 "terminal-polyglot.language-config": {
     "python": {
-        "launch": "tmux new-session -A -s '%' python ",
-        "run": "exec(open(\"%\").read(), globals())",
-        "cd": "import os; os.chdir(\"%\")"
+        "launch": "tmux new-session -A -s '%' ipython",
+        "run": "%%run \"%\"",
+        "cd": "%%cd \"%\""
     },
     "clojure": {
         "launch": "tmux new-session -A -s '%' clojure",

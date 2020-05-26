@@ -104,9 +104,19 @@
       "type": "object",
       "title": "Terminal Polyglot Configuration",
       "properties": {
-        "terminal-polyglot.escape-sent-text": {
+        "terminal-polyglot.escape-sent-text.darwin": {
           "type": "boolean",
-          "description": "Escape text using 'paste mode'",
+          "description": "Escape text using 'paste mode' on MacOS",
+          "default": true
+        },
+        "terminal-polyglot.escape-sent-text.linux": {
+          "type": "boolean",
+          "description": "Escape text using 'paste mode' on Linux",
+          "default": true
+        },
+        "terminal-polyglot.escape-sent-text.win32": {
+          "type": "boolean",
+          "description": "Escape text using 'paste mode' on Windows",
           "default": false
         },
         "terminal-polyglot.language-config": {
@@ -114,9 +124,9 @@
           "description": "Language-specific commands to run scripts and change directories",
           "default": {
             "python": {
-              "launch": "python",
-              "run": "exec(open(\"%\").read(), globals())",
-              "cd": "import os; os.chdir(\"%\")"
+              "launch": "ipython",
+              "run": "%%run \"%\"",
+              "cd": "%%cd \"%\""
             },
             "clojure": {
               "launch": "clojure",
