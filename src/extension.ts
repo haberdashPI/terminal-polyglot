@@ -82,7 +82,7 @@ function get_term_count_for(languageId: string){
 function send_text(term: vscode.Terminal, text: string){
   escapeText && term.sendText("\x1B[200~")
   term.sendText(text)
-  escapeText && term.sendText("\x1B[201")
+  escapeText && term.sendText("\x1B[201~")
 }
 
 function create_terminal(context: vscode.ExtensionContext,
@@ -176,13 +176,6 @@ function updateEscape(event?: vscode.ConfigurationChangeEvent){
         escapeText = maybeEscapeText === undefined ? true : maybeEscapeText;
     }
 }
-
-// this method is called when your extension is activated
-// your extension is activated the very first time the command is executed
-export function activate(context: vscode.ExtensionContext) {
-
-    // TODO: create a way to define regex's in settings.json
-
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
