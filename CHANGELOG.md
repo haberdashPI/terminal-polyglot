@@ -5,7 +5,7 @@ All notable changes to the "terminal-polyglot" extension will be documented in t
 - **More robust send-text behavior for unix systems**: Sends the appropriate
   [bracketed paste escape sequences](https://cirw.in/blog/bracketed-paste).
   Defaults to false on windows to avoid issues on that platform, use WSL to fix
-  the problem. This feature afforeds ipython, in particular, a much more
+  the problem. This feature affords `ipython`, in particular, a much more
   ergonomic experience.
 
 ## [0.3.5]
