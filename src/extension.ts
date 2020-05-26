@@ -81,8 +81,8 @@ function get_term_count_for(languageId: string){
 // enclose all terminal text in bracketed paste mode
 function send_text(term: vscode.Terminal, text: string){
   escapeText && term.sendText("\x1B[200~",false)
-  term.sendText(text)
-  escapeText && term.sendText("\x1B[201~",false)
+  term.sendText(text,false)
+  escapeText && term.sendText("\x1B[201~")
 }
 
 function create_terminal(context: vscode.ExtensionContext,
