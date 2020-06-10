@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to the "terminal-polyglot" extension will be documented in this file.
 
+## [0.3.7]
+- **Improved terminal names**: replace most non-alphanumeric characters
+with `-` in terminal names.
+
 ## [0.3.6]
 - **More robust send-text behavior for unix systems**: Sends the appropriate
   [bracketed paste escape sequences](https://cirw.in/blog/bracketed-paste).

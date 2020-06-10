@@ -92,13 +92,15 @@ function create_terminal(context: vscode.ExtensionContext,
   let term = vscode.window.createTerminal(name);
   let workspace_name = vscode.workspace.name ? vscode.workspace.name : "";
   workspace_name = workspace_name.replace(/\s+\(Workspace\)/,'-workspace');
-  workspace_name = workspace_name.replace(/\./g,"-")
 
   // text in [ ] at the end of the name identifies the remote server of the
   // workspace. We don't need the name we use to disambiguate between different
   // remote spaces, since by necessity tmux or screen will have a different
   // environment in different remote locations
   workspace_name = workspace_name.replace(/ \[.*\]$/,'');
+
+  // replace all remaining non-alpha numeric characters with `-`
+  workspace_name = workspace_name.replace(/\W/g,"-")
 
   let session_name = workspace_name+"-"+name;
   let launch = replace_wildcard(language_config(editor).launch,session_name);
