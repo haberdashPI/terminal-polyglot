@@ -317,13 +317,13 @@ export function activate(context: vscode.ExtensionContext) {
         }).then((entry?: string) => {
           if(entry !== undefined){
             index = Number(entry);
-            let terminal = create_terminal(context,editor,
+            let terminal = find_terminal(context,editor,
               editor.document.fileName, languageId+'-shell-'+index);
             if(terminal){ terminal.show(); }
           }
         });
       }else{
-        let terminal = create_terminal(context,editor,
+        let terminal = find_terminal(context,editor,
           editor.document.fileName, languageId+'-shell-'+index);
         if(terminal){ terminal.show(); }
       }

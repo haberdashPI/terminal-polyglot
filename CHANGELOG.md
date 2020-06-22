@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to the "terminal-polyglot" extension will be documented in this file.
 
+## [0.3.9]
+- **Improved "Open Terminal..." command**: if the terminal already exists
+the command no longer creates a new identically named terminal.
+
 ## [0.3.8]
 - **Improved cursor movement following send-text command**: only moves
 down a line when the selection is empty.
