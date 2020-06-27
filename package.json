@@ -104,17 +104,17 @@
       "type": "object",
       "title": "Terminal Polyglot Configuration",
       "properties": {
-        "terminal-polyglot.escape-sent-text.darwin": {
+        "terminal-polyglot.escapeSendText.darwin": {
           "type": "boolean",
           "description": "Escape text using 'paste mode' on MacOS",
           "default": true
         },
-        "terminal-polyglot.escape-sent-text.linux": {
+        "terminal-polyglot.escapeSendText.linux": {
           "type": "boolean",
           "description": "Escape text using 'paste mode' on Linux",
           "default": true
         },
-        "terminal-polyglot.escape-sent-text.win32": {
+        "terminal-polyglot.escapeSendText.win32": {
           "type": "boolean",
           "description": "Escape text using 'paste mode' on Windows",
           "default": false

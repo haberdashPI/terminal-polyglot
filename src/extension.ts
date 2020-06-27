@@ -176,7 +176,7 @@ function updateEscape(event?: vscode.ConfigurationChangeEvent){
     if(!event || event.affectsConfiguration("terminal-polyglot")){
         let config = vscode.workspace.getConfiguration("terminal-polyglot");
         const platform = process.platform as "win32" | "darwin" | "linux";
-        let maybeEscapeText = config.get<boolean>("escape-send-text."+platform)
+        let maybeEscapeText = config.escapeSendText[platform]
         escapeText = maybeEscapeText === undefined ? true : maybeEscapeText;
     }
 }
