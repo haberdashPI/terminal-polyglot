@@ -2,6 +2,9 @@
 All notable changes to the "terminal-polyglot" extension will be documented in this file.
 
 ## [0.3.10]
+- **Bufix: correclty send newlines when brackted paste mode is off
+
+## [0.3.10]
 - **Bugfix: bracketed paste-mode preferences respected**: turning it off
 did not previously work in all cases.
 
