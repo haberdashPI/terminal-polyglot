@@ -83,6 +83,7 @@ function send_text(term: vscode.Terminal, text: string){
   escapeText && term.sendText("\x1B[200~",false)
   term.sendText(text,false)
   escapeText && term.sendText("\x1B[201~")
+  !escapeText && term.sendText("",true)
 }
 
 function create_terminal(context: vscode.ExtensionContext,
