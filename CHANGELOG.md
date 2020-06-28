@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to the "terminal-polyglot" extension will be documented in this file.
 
+## [0.3.10]
+- **Bugfix: bracketed paste-mode preferences respected**: turning it off
+did not previously work in all cases.
+
 ## [0.3.9]
 - **Improved "Open Terminal..." command**: if the terminal already exists
 the command no longer creates a new identically named terminal.
