@@ -196,11 +196,11 @@ let terminalChangeEvent: vscode.Disposable | undefined = undefined;
 // your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
 
-  let config = vscode.workspace.getConfiguration("terminal-polyglot.language-config")
-  if(config){
+  let config = vscode.workspace.getConfiguration("terminal-polyglot")
+  if(config.get("language-config")){
     vscode.window.showErrorMessage("The new version of Terminal Polyglot does not use the"+
-      " `#language-config#` setting, please use the new language-specific settings. "+
-      "(See the README.md)");
+      " `language-config` setting, please use the new language-specific settings. "+
+      "(See the [README.md](https://github.com/haberdashPI/terminal-polyglot/blob/master/README.md))");
   }
 
   // Use the console to output diagnostic information (console.log) and errors (console.error)
