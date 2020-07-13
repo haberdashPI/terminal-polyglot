@@ -38,7 +38,7 @@ For each language there are at least three settings you probably want to specify
 
 - `launchCommnad`: the command to start a REPL from the shell
 - `runCommnad`: the command to run a file in the REPL
-- `changeeDirecetoryCommand`: the command to change directories in the REPL
+- `changeDirecetoryCommand`: the command to change directories in the REPL
 
 The run and change direcetory commands need to use a wildcard character, "%", which will be
 replaced with an appropriate file or directory. To insert a literal "%" character in the
