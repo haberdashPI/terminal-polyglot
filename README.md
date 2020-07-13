@@ -34,68 +34,85 @@ The `Open Terminal...` command can also determine the terminal to open using an 
 
 ## Extension Settings
 
-Settings for each language are specified using `terminal-polyglot.language-config`.
+For each language there are at least three settings you probably want to specify.
 
-The settings specify how to run files, change directories and launch a REPL.
+- `launchCommnad`: the command to start a REPL from the shell
+- `runCommnad`: the command to run a file in the REPL
+- `changeeDirecetoryCommand`: the command to change directories in the REPL
 
-The default value is:
+The run and change direcetory commands need to use a wildcard character, "%", which will be
+replaced with an appropriate file or directory. To insert a literal "%" character in the
+command, just use "%%".
+
+There is a final optional setting called `bracketedPasteMode`, which defaults to `false`.
+When set to true an escape code which indicates the text being sent is from a "paste"-like
+command is used. Some REPLs will drop or alter text if you do not use bracketed paste mode.
+Others will not know what the code means and sending it will result in an error.
+
+As an example, here are the default settings.
 
 ```json
-"terminal-polyglot.language-config": {
-    "python": {
-        "launch": "ipython",
-        "run": "%%run \"%\"",
-        "cd": "%%cd \"%\""
-    },
-    "clojure": {
-        "launch": "clojure",
-        "run": "(load-file \"%\")",
-        "cd": ""
-    },
-    "julia": {
-        "launch": "julia",
-        "run": "include(\"%\")",
-        "cd": "cd(\"%\")"
-    },
-    "ruby": {
-        "launch": "irb",
-        "run": "load '%'",
-        "cd": "Dir.chdir('%')"
-    },
-    "r": {
-        "launch": "R",
-        "run": "source(\"%\")",
-        "cd": "setwd(\"%\")"
-    },
-    "matlab": {
-        "launch": "matlab -nodesktop -nosplash",
-        "run": "run '%'",
-        "cd": "cd '%'"
-    },
-    "typescript": {
-        "launch": "ts-node",
-        "run": ".load \"%\"",
-        "cd": "process.chdir(\"%\")"
-    },
-    "javascript": {
-        "launch": "node",
-        "run": ".load \"%\"",
-        "cd": "process.chdir(\"%\")"
-    }
+"[python]": {
+  "terminal-polyglot.launchCommand": "ipython",
+  "terminal-polyglot.runCommand": "%%run \"%\"",
+  "terminal-polyglot.changeDirectoryCommand": "%%cd \"%\"",
+  "terminal-polyglot.bracketedPasteMode": true
+},
+"[clojure]": {
+  "terminal-polyglot.launchCommand": "clojure",
+  "terminal-polyglot.runCommand": "(load-file \"%\")",
+  "terminal-polyglot.changeDirectoryCommand": ""
+},
+"[julia]": {
+  "terminal-polyglot.launchCommand": "julia",
+  "terminal-polyglot.runCommand": "include(\"%\")",
+  "terminal-polyglot.changeDirectoryCommand": "cd(\"%\")",
+  "terminal-polyglot.bracketedPasteMode": true
+},
+"[ruby]": {
+  "terminal-polyglot.launchCommand": "irb",
+  "terminal-polyglot.runCommand": "load '%'",
+  "terminal-polyglot.changeDirectoryCommand": "Dir.chdir('%')"
+},
+"[r]": {
+  "terminal-polyglot.launchCommand": "R",
+  "terminal-polyglot.runCommand": "source(\"%\")",
+  "terminal-polyglot.changeDirectoryCommand": "setwd(\"%\")"
+},
+"[matlab]": {
+  "terminal-polyglot.launchCommand": "matlab -nodesktop -nosplash",
+  "terminal-polyglot.runCommand": "run '%'",
+  "terminal-polyglot.changeDirectoryCommand": "cd '%'"
+},
+"[typescript]": {
+  "terminal-polyglot.launchCommand": "ts-node",
+  "terminal-polyglot.runCommand": ".load \"%\"",
+  "terminal-polyglot.changeDirectoryCommand": "process.chdir(\"%\")",
+  "terminal-polyglot.bracketedPasteMode": true
+},
+"[javascript]": {
+  "terminal-polyglot.launchCommand": "node",
+  "terminal-polyglot.runCommand": ".load \"%\"",
+  "terminal-polyglot.changeDirectoryCommand": "process.chdir(\"%\")",
+  "terminal-polyglot.bracketedPasteMode": true
 }
 ```
 
 If you have additional languages you'd like included in the default settings
 please file an issue or create a PR.
 
-## Wildcards
+## Platform specific paste mode
 
-When calling `run` or `cd`, the wildcard character `%` is replaced with the
-directory or filename as appropriate. You can include `%` characters in the
-string sent to the terminal by using it twice. This is used, for example, in the
-default python commands listed above.
+Bracketed paste mode can be specified in a plastform specific way if necessary.
+This is done as follows.
 
-### Persistent terminal sessions
+```json
+"bracketedPasteMode": {"darwin": true, "linux": true, "win32": false}
+```
+
+Windows does not always handle bracketed paste mode well.
+
+## Persistent terminal sessions
 
 When present, a wildcard in `launch` is replaced with the name of the workspace
 and terminal. This lets you create persistent terminal sessions using this name.
@@ -103,47 +120,29 @@ For example, to use `tmux` to maintain your terminal state, you could use the
 following settings:
 
 ```json
-"terminal-polyglot.language-config": {
-    "python": {
-        "launch": "tmux new-session -A -s '%' ipython",
-        "run": "%%run \"%\"",
-        "cd": "%%cd \"%\""
-    },
-    "clojure": {
-        "launch": "tmux new-session -A -s '%' clojure",
-        "run": "(load-file \"%\")",
-        "cd": ""
-    },
-    "julia": {
-        "launch": "tmux new-session -A -s '%' julia",
-        "run": "include(\"%\")",
-        "cd": "cd(\"%\")"
-    },
-    "ruby": {
-        "launch": "tmux new-session -A -s '%' irb",
-        "run": "load '%'",
-        "cd": "Dir.chdir('%')"
-    },
-    "r": {
-        "launch": "tmux new-session -A -s '%' R",
-        "run": "source(\"%\")",
-        "cd": "setwd(\"%\")"
-    },
-    "matlab": {
-        "launch": "tmux new-session -A -s '%' matlab -nodesktop -nosplas",
-        "run": "run '%'",
-        "cd": "cd '%'"
-    },
-    "typescript": {
-        "launch": "tmux new-session -A -s '%' ts-node",
-        "run": ".load \"%\"",
-        "cd": "process.chdir(\"%\")"
-    },
-    "javascript": {
-        "launch": "tmux new-session -A -s '%' node",
-        "run": ".load \"%\"",
-        "cd": "process.chdir(\"%\")"
-    }
+"[python]": {
+  "terminal-polyglot.launchCommand": "tmux new-session -A -s '%' ipython"
+},
+"[clojure]": {
+  "terminal-polyglot.launchCommand": "tmux new-session -A -s '%' clojure"
+},
+"[julia]": {
+  "terminal-polyglot.launchCommand": "tmux new-session -A -s '%' julia"
+},
+"[ruby]": {
+  "terminal-polyglot.launchCommand": "tmux new-session -A -s '%' irb"
+},
+"[r]": {
+  "terminal-polyglot.launchCommand": "tmux new-session -A -s '%' R"
+},
+"[matlab]": {
+  "terminal-polyglot.launchCommand": "tmux new-session -A -s '%' matlab -nodesktop -nosplash"
+},
+"[typescript]": {
+  "terminal-polyglot.launchCommand": "tmux new-session -A -s '%' ts-node"
+},
+"[javascript]": {
+  "terminal-polyglot.launchCommand": "tmux new-session -A -s '%' node"
 }
 ```
 

@@ -10,6 +10,7 @@ interface TermLanguageConfig {
   cd: string;
   run: string;
   launch: string;
+  bracketedPasteMode: boolean;
 }
 
 function with_editor(fn: (editor: vscode.TextEditor) => void){
@@ -79,7 +80,7 @@ function get_term_count_for(languageId: string){
 }
 
 // enclose all terminal text in bracketed paste mode
-function send_text(term: vscode.Terminal, text: string){
+function send_text(term: vscode.Terminal, text: string, escapeText: boolean){
   escapeText && term.sendText("\x1B[200~",false)
   term.sendText(text,false)
   escapeText && term.sendText("\x1B[201~")
@@ -104,8 +105,9 @@ function create_terminal(context: vscode.ExtensionContext,
   workspace_name = workspace_name.replace(/\W/g,"-")
 
   let session_name = workspace_name+"-"+name;
-  let launch = replace_wildcard(language_config(editor).launch,session_name);
-  if(launch.length > 0){ send_text(term,launch); }
+  let conf = language_config(editor);
+  let launch = replace_wildcard(conf.launch,session_name);
+  if(launch.length > 0){ send_text(term,launch,conf.bracketedPasteMode); }
   let state: {[key: string]: string;} = context.workspaceState.get('terminal-map') || {};
 
   state["file:"+file] = term.name;
@@ -140,14 +142,33 @@ function get_terminal(context: vscode.ExtensionContext,
   }
 }
 
-function language_config(editor: vscode.TextEditor){
-  let config = vscode.workspace.getConfiguration("terminal-polyglot.language-config");
+function def<T>(x: T | undefined,y: T): T {
+  if(x) return x;
+  else return y;
+}
 
-  let l_config: TermLanguageConfig | undefined = config.get(editor.document.languageId);
-  if(l_config){
-    return l_config;
+interface PlatformSpecific<T> {
+  darwin: T, linux: T, win32: T
+}
+
+function platform<T>(x: T | PlatformSpecific<T> | undefined): T | undefined {
+  if((x as PlatformSpecific<T>).darwin){
+    const platform = process.platform as "win32" | "darwin" | "linux";
+    return (x as PlatformSpecific<T>)[platform]
   }else{
-    return {cd: "cd \"%\"", run: "./\"%\"", launch: ""};
+    return (x as T | undefined);
+  }
+}
+
+function language_config(editor: vscode.TextEditor): TermLanguageConfig{
+  let config = vscode.workspace.getConfiguration("terminal-polyglot",
+    editor.document)
+
+  return {
+    cd: def(config?.get<string>("changeDirectoryCommand"), "cd \"%\""),
+    run: def(config?.get<string>("runCommand"), "./\%\""),
+    launch: def(config?.get<string>("launchCommand"), ""),
+    bracketedPasteMode: def(platform(config?.get<boolean>("bracketedPasteMode")), false)
   }
 }
 
@@ -171,25 +192,18 @@ function get_term_languageId(terminal: vscode.Terminal){
 
 let terminalChangeEvent: vscode.Disposable | undefined = undefined;
 
-let escapeText: boolean = true;
-
-function updateEscape(event?: vscode.ConfigurationChangeEvent){
-    if(!event || event.affectsConfiguration("terminal-polyglot")){
-        let config = vscode.workspace.getConfiguration("terminal-polyglot");
-        const platform = process.platform as "win32" | "darwin" | "linux";
-        let maybeEscapeText = config.escapeSendText[platform]
-        escapeText = maybeEscapeText === undefined ? true : maybeEscapeText;
-    }
-}
-
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
 
-  updateEscape();
-  vscode.workspace.onDidChangeConfiguration(updateEscape);
+  let config = vscode.workspace.getConfiguration("terminal-polyglot.language-config")
+  if(config){
+    vscode.window.showErrorMessage("The new version of Terminal Polyglot does not use the"+
+      " `#language-config#` setting, please use the new language-specific settings. "+
+      "(See the README.md)");
+  }
 
-// Use the console to output diagnostic information (console.log) and errors (console.error)
+  // Use the console to output diagnostic information (console.log) and errors (console.error)
 	// This line of code will only be executed once when your extension is activated
   console.log('"terminal-polyglot" is now active!');
   let last_editor = vscode.window.activeTextEditor;
@@ -274,7 +288,7 @@ export function activate(context: vscode.ExtensionContext) {
         text = editor.document.getText(sel);
       }
       if(terminal){
-        send_text(terminal,text);
+        send_text(terminal,text,language_config(editor).bracketedPasteMode);
         terminal.show(true);
         let pos;
         if(sel.isEmpty){
@@ -346,10 +360,12 @@ export function activate(context: vscode.ExtensionContext) {
     with_editor(editor => {
       with_file_path(editor, file => {
         let dir = path.dirname(file);
-        dir = dir.replace("\\","\\\\");
         let terminal = get_terminal(context,editor,file);
         if(terminal){
-          send_text(terminal,'cd "' + dir + '"');
+          let cdcmd_ = vscode.workspace.getConfiguration("terminal-polyglot").
+            get<string>("changeDirectoryShellCommand");
+          let cdcmd = cdcmd_ ? cdcmd_ : "cd %";
+          send_text(terminal,replace_wildcard(cdcmd, dir),false);
           terminal.show(true);
         }
       });
@@ -362,24 +378,62 @@ export function activate(context: vscode.ExtensionContext) {
       with_file_path(editor, file => {
         let dir = path.dirname(file);
         dir = dir.replace("\\","\\\\");
-        let pattern = language_config(editor).cd;
+        let conf = language_config(editor)
+        let pattern = conf.cd;
         let terminal = get_terminal(context,editor,file);
         if(terminal){
-          send_text(terminal,replace_wildcard(pattern,dir));
+          send_text(terminal,replace_wildcard(pattern,dir),conf.bracketedPasteMode);
           terminal.show(true);
         }
       });
     });
   });
 
+  command = vscode.commands.registerCommand('terminal-polyglot.cd-workspace', () => {
+    with_editor(editor => {
+      with_file_path(editor, file => {
+        let dir = vscode.workspace.rootPath
+        if(dir){
+          dir = dir.replace("\\","\\\\");
+          let conf = language_config(editor);
+          let pattern = conf.cd;
+          let terminal = get_terminal(context,editor,file);
+          if(terminal){
+            send_text(terminal,replace_wildcard(pattern,dir),conf.bracketedPasteMode)
+            terminal.show(true);
+          }
+        }
+      });
+    })
+  });
+
+  command = vscode.commands.registerCommand('terminal-polyglot.global_cd-workspace', () => {
+    with_editor(editor => {
+      with_file_path(editor, file => {
+        let dir = vscode.workspace.rootPath
+        if(dir){
+          let terminal = get_terminal(context,editor,file);
+          if(terminal){
+            let cdcmd_ = vscode.workspace.getConfiguration("terminal-polyglot").
+              get<string>("changeDirectoryShellCommand");
+            let cdcmd = cdcmd_ ? cdcmd_ : "cd %";
+            send_text(terminal,replace_wildcard(cdcmd, dir),false);
+            terminal.show(true);
+          }
+        }
+      });
+    })
+  });
+
   command = vscode.commands.registerCommand('terminal-polyglot.run', () => {
     with_editor(editor => {
       with_file_path(editor, file => {
-        let pattern = language_config(editor).run;
+        let conf = language_config(editor);
+        let pattern = conf.run;
         file = file.replace("\\","\\\\");
         let terminal = get_terminal(context,editor,file);
         if(terminal){
-          send_text(terminal,replace_wildcard(pattern,file));
+          send_text(terminal,replace_wildcard(pattern,file),conf.bracketedPasteMode);
           terminal.show();
         }
       });

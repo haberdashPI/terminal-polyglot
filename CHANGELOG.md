@@ -1,8 +1,15 @@
 # Change Log
 All notable changes to the "terminal-polyglot" extension will be documented in this file.
 
-## [0.3.10]
-- **Bufix: correclty send newlines when brackted paste mode is off
+## [0.4.0]
+- **Feature**: Settings revised to use VSCode's built-in langauge specific
+  scoping.
+- **Feature**: Bracketed paste mode can be set per language and per OS.
+- **Feature**: Commands to change to the root workspace directory.
+- **Bugfix**: Improved path handeling on windows.
+
+## [0.3.10-11]
+- **Bufix: correctly send newlines when brackted paste mode is off
 
 ## [0.3.10]
 - **Bugfix: bracketed paste-mode preferences respected**: turning it off

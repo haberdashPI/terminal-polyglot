@@ -6,7 +6,7 @@
   "displayName": "Terminal Polyglot",
   "license": "MIT",
   "description": "Easily manage terminals on a per-language basis.",
-  "version": "0.3.11",
+  "version": "0.4.0",
   "engines": {
     "vscode": "^1.45.0"
   },
@@ -22,6 +22,8 @@
     "onCommand:terminal-polyglot.send-text",
     "onCommand:terminal-polyglot.cd",
     "onCommand:terminal-polyglot.global_cd",
+    "onCommand:terminal-polyglot.cd-workspace",
+    "onCommand:terminal-polyglot.global_cd-worrkspace",
     "onCommand:terminal-polyglot.run"
   ],
   "main": "./out/extension.js",
@@ -86,12 +88,22 @@
       },
       {
         "command": "terminal-polyglot.cd",
-        "title": "Change Directory",
+        "title": "Change to File Directory",
         "category": "Terminal Polyglot"
       },
       {
         "command": "terminal-polyglot.global_cd",
-        "title": "Change Shell Directory",
+        "title": "Change to File Directory in shell",
+        "category": "Terminal Polyglot"
+      },
+      {
+        "command": "terminal-polyglot.cd-workspace",
+        "title": "Change to Workspace Directory",
+        "category": "Terminal Polyglot"
+      },
+      {
+        "command": "terminal-polyglot.global_cd-workspace",
+        "title": "Change to Workspace Directory in shell",
         "category": "Terminal Polyglot"
       },
       {
@@ -104,80 +116,82 @@
       "type": "object",
       "title": "Terminal Polyglot Configuration",
       "properties": {
-        "terminal-polyglot.escapeSendText.darwin": {
-          "type": "boolean",
-          "description": "Escape text using 'paste mode' on MacOS",
-          "default": true
+        "terminal-polyglot.changeDirectoryShellCommand": {
+          "type": "string",
+          "description": "The shell command to change directories.",
+          "scope": "machine-overridable",
+          "default": "cd %"
         },
-        "terminal-polyglot.escapeSendText.linux": {
+        "terminal-polyglot.bracketedPasteMode": {
           "type": "boolean",
-          "description": "Escape text using 'paste mode' on Linux",
-          "default": true
+          "description": "Escape text sent to terminal using bracketed paste mode.",
+          "default": false,
+          "scope": "language-overridable"
         },
-        "terminal-polyglot.escapeSendText.win32": {
-          "type": "boolean",
-          "description": "Escape text using 'paste mode' on Windows",
-          "default": false
+        "terminal-polyglot.launchCommand": {
+          "type": "string",
+          "description": "The terminal command used to start a language-specific REPL.",
+          "scope": "language-overridable",
+          "default": ""
         },
-        "terminal-polyglot.language-config": {
-          "type": "object",
-          "description": "Language-specific commands to run scripts and change directories",
-          "default": {
-            "python": {
-              "launch": "ipython",
-              "run": "%%run \"%\"",
-              "cd": "%%cd \"%\""
-            },
-            "clojure": {
-              "launch": "clojure",
-              "run": "(load-file \"%\")",
-              "cd": ""
-            },
-            "julia": {
-              "launch": "julia",
-              "run": "include(\"%\")",
-              "cd": "cd(\"%\")"
-            },
-            "ruby": {
-              "launch": "irb",
-              "run": "load '%'",
-              "cd": "Dir.chdir('%')"
-            },
-            "r": {
-              "launch": "R",
-              "run": "source(\"%\")",
-              "cd": "setwd(\"%\")"
-            },
-            "matlab": {
-              "launch": "matlab -nodesktop -nosplash",
-              "run": "run '%'",
-              "cd": "cd '%'"
-            },
-            "typescript": {
-              "launch": "ts-node",
-              "run": ".load \"%\"",
-              "cd": "process.chdir(\"%\")"
-            },
-            "javascript": {
-              "launch": "node",
-              "run": ".load \"%\"",
-              "cd": "process.chdir(\"%\")"
-            }
-          },
-          "patternProperties": {
-            ".*": {
-              "cd": {
-                "type": "string"
-              },
-              "run": {
-                "type": "string"
-              },
-              "launch": {
-                "type": "string"
-              }
-            }
-          }
+        "terminal-polyglot.runCommand": {
+          "type": "string",
+          "description": "The language-specific REPL command used to run a file.",
+          "scope": "language-overridable",
+          "default": "./%"
+        },
+        "terminal-polyglot.changeDirectoryCommand": {
+          "type": "string",
+          "description": "The language-speceific REPL command to change directories.",
+          "scope": "language-overridable",
+          "default": "cd %"
         }
+      }
+    },
+    "configurationDefaults": {
+      "[python]": {
+        "terminal-polyglot.launchCommand": "ipython",
+        "terminal-polyglot.runCommand": "%%run \"%\"",
+        "terminal-polyglot.changeDirectoryCommand": "%%cd \"%\"",
+        "terminal-polyglot.bracketedPasteMode": true
+      },
+      "[clojure]": {
+        "terminal-polyglot.launchCommand": "clojure",
+        "terminal-polyglot.runCommand": "(load-file \"%\")",
+        "terminal-polyglot.changeDirectoryCommand": ""
+      },
+      "[julia]": {
+        "terminal-polyglot.launchCommand": "julia",
+        "terminal-polyglot.runCommand": "include(\"%\")",
+        "terminal-polyglot.changeDirectoryCommand": "cd(\"%\")",
+        "terminal-polyglot.bracketedPasteMode": true
+      },
+      "[ruby]": {
+        "terminal-polyglot.launchCommand": "irb",
+        "terminal-polyglot.runCommand": "load '%'",
+        "terminal-polyglot.changeDirectoryCommand": "Dir.chdir('%')"
+      },
+      "[r]": {
+        "terminal-polyglot.launchCommand": "R",
+        "terminal-polyglot.runCommand": "source(\"%\")",
+        "terminal-polyglot.changeDirectoryCommand": "setwd(\"%\")"
+      },
+      "[matlab]": {
+        "terminal-polyglot.launchCommand": "matlab -nodesktop -nosplash",
+        "terminal-polyglot.runCommand": "run '%'",
+        "terminal-polyglot.changeDirectoryCommand": "cd '%'"
+      },
+      "[typescript]": {
+        "terminal-polyglot.launchCommand": "ts-node",
+        "terminal-polyglot.runCommand": ".load \"%\"",
+        "terminal-polyglot.changeDirectoryCommand": "process.chdir(\"%\")",
+        "terminal-polyglot.bracketedPasteMode": true
+      },
+      "[javascript]": {
+        "terminal-polyglot.launchCommand": "node",
+        "terminal-polyglot.runCommand": ".load \"%\"",
+        "terminal-polyglot.changeDirectoryCommand": "process.chdir(\"%\")",
+        "terminal-polyglot.bracketedPasteMode": true
       }
     }
   },
