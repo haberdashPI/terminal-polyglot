@@ -6,7 +6,7 @@
   "displayName": "Terminal Polyglot",
   "license": "MIT",
   "description": "Easily manage terminals on a per-language basis.",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "engines": {
     "vscode": "^1.45.0"
   },
@@ -124,7 +124,7 @@
         },
         "terminal-polyglot.bracketedPasteMode": {
           "type": "boolean",
-          "description": "Escape text sent to terminal using bracketed paste mode.",
+          "description": "Send special 'paste' mode character to language-specifi REPL.",
           "default": false,
           "scope": "language-overridable"
         },
@@ -184,14 +184,12 @@
       "[typescript]": {
         "terminal-polyglot.launchCommand": "ts-node",
         "terminal-polyglot.runCommand": ".load \"%\"",
-        "terminal-polyglot.changeDirectoryCommand": "process.chdir(\"%\")",
-        "terminal-polyglot.bracketedPasteMode": true
+        "terminal-polyglot.changeDirectoryCommand": "process.chdir(\"%\")"
       },
       "[javascript]": {
         "terminal-polyglot.launchCommand": "node",
         "terminal-polyglot.runCommand": ".load \"%\"",
-        "terminal-polyglot.changeDirectoryCommand": "process.chdir(\"%\")",
-        "terminal-polyglot.bracketedPasteMode": true
+        "terminal-polyglot.changeDirectoryCommand": "process.chdir(\"%\")"
       }
     }
   },

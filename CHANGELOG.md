@@ -1,6 +1,9 @@
 # Change Log
 All notable changes to the "terminal-polyglot" extension will be documented in this file.
 
+## [0.4.1]
+- **Configuration**: Small changes to default settings for bracketed paste mode.
+
 ## [0.4.0]
 - **Feature**: Settings revised to use VSCode's built-in langauge specific
   scoping.
