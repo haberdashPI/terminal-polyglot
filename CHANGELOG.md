@@ -1,6 +1,9 @@
 # Change Log
 All notable changes to the "terminal-polyglot" extension will be documented in this file.
 
+## [0.4.2]
+- **Feature**: Command to send block of text (allows language specific wrappers around such blocks).
+
 ## [0.4.1]
 - **Configuration**: Small changes to default settings for bracketed paste mode.
 

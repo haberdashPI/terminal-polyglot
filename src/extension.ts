@@ -11,6 +11,7 @@ interface TermLanguageConfig {
   run: string;
   launch: string;
   bracketedPasteMode: boolean;
+  sendTextBlockCommand: string;
 }
 
 function with_editor(fn: (editor: vscode.TextEditor) => void){
@@ -168,7 +169,8 @@ function language_config(editor: vscode.TextEditor): TermLanguageConfig{
     cd: def(config?.get<string>("changeDirectoryCommand"), "cd \"%\""),
     run: def(config?.get<string>("runCommand"), "./\%\""),
     launch: def(config?.get<string>("launchCommand"), ""),
-    bracketedPasteMode: def(platform(config?.get<boolean>("bracketedPasteMode")), false)
+    bracketedPasteMode: def(platform(config?.get<boolean>("bracketedPasteMode")), false),
+    sendTextBlockCommand: def(config?.get<string>("sendTextBlockCommand"), "%")
   }
 }
 
@@ -273,7 +275,7 @@ export function activate(context: vscode.ExtensionContext) {
 
   // Send commands, respecting the association between files and
   // particular terminals
-  command = vscode.commands.registerCommand('terminal-polyglot.send-text', () => {
+  function sendTextCommand(useBlock: boolean){
     with_editor(editor => {
       let terminal = get_terminal(context,editor,editor.document.fileName);
       let sel = editor.selection;
@@ -288,7 +290,13 @@ export function activate(context: vscode.ExtensionContext) {
         text = editor.document.getText(sel);
       }
       if(terminal){
-        send_text(terminal,text,language_config(editor).bracketedPasteMode);
+        let conf = language_config(editor)
+        if(useBlock){
+          let pattern = conf.sendTextBlockCommand;
+          send_text(terminal,replace_wildcard(pattern,text),conf.bracketedPasteMode);
+        }else{
+          send_text(terminal,text,conf.bracketedPasteMode);
+        }
         terminal.show(true);
         let pos;
         if(sel.isEmpty){
@@ -300,7 +308,14 @@ export function activate(context: vscode.ExtensionContext) {
         editor.selection = new vscode.Selection(pos,pos);
       }
     });
-  });
+  }
+
+  command = vscode.commands.registerCommand('terminal-polyglot.send-text',
+    () => sendTextCommand(false));
+  context.subscriptions.push(command);
+
+  command = vscode.commands.registerCommand('terminal-polyglot.send-block-text',
+    () => sendTextCommand(true));
   context.subscriptions.push(command);
 
   command = vscode.commands.registerCommand('terminal-polyglot.new-terminal', () => {
