@@ -44,10 +44,14 @@ The run and change direcetory commands need to use a wildcard character, "%", wh
 replaced with an appropriate file or directory. To insert a literal "%" character in the
 command, just use "%%".
 
-There is a final optional setting called `bracketedPasteMode`, which defaults to `false`.
-When set to true an escape code which indicates the text being sent is from a "paste"-like
-command is used. Some REPLs will drop or alter text if you do not use bracketed paste mode.
-Others will not know what the code means and sending it will result in an error.
+There are two optional settings:
+
+- `bracketedPasteMode` - defaults to `false`; allows special escape characters
+to be sent to the terminal; some REPLs drop or alter text when this mode is not
+set to `true` (e.g. `ipython`).
+- `sendTextBlockCommand` - defaults to "%"; allows you to wrap code send via the
+  `send-text-block` command with extra code. This allows a block sent in this way to differ
+  in how it is run or displayed in the REPL.
 
 As an example, here are the default settings.
 
@@ -67,7 +71,8 @@ As an example, here are the default settings.
   "terminal-polyglot.launchCommand": "julia",
   "terminal-polyglot.runCommand": "include(\"%\")",
   "terminal-polyglot.changeDirectoryCommand": "cd(\"%\")",
-  "terminal-polyglot.bracketedPasteMode": true
+  "terminal-polyglot.bracketedPasteMode": true,
+  "termianl-polyglot.sendTextBlockCommand": "begin; %; end"
 },
 "[ruby]": {
   "terminal-polyglot.launchCommand": "irb",

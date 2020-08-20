@@ -181,7 +181,8 @@
         "terminal-polyglot.launchCommand": "julia",
         "terminal-polyglot.runCommand": "include(\"%\")",
         "terminal-polyglot.changeDirectoryCommand": "cd(\"%\")",
-        "terminal-polyglot.bracketedPasteMode": true
+        "terminal-polyglot.bracketedPasteMode": true,
+        "termianl-polyglot.sendTextBlockCommand": "begin; %; end"
       },
       "[ruby]": {
         "terminal-polyglot.launchCommand": "irb",
