@@ -12,6 +12,7 @@ interface TermLanguageConfig {
   launch: string;
   bracketedPasteMode: boolean;
   sendTextBlockCommand: string;
+  codeFenceSyntax?: [string, string];
 }
 
 function with_editor(fn: (editor: vscode.TextEditor) => void){
@@ -90,7 +91,8 @@ function send_text(term: vscode.Terminal, text: string, escapeText: boolean){
 
 function create_terminal(context: vscode.ExtensionContext,
   editor: vscode.TextEditor, file: string, name: string): vscode.Terminal {
-  let languageId = editor.document.languageId;
+  let languageId = get_editor_languageId(editor);
+  let conf = language_config(editor, languageId)
 
   let term = vscode.window.createTerminal(name);
   let workspace_name = vscode.workspace.name ? vscode.workspace.name : "";
@@ -106,12 +108,11 @@ function create_terminal(context: vscode.ExtensionContext,
   workspace_name = workspace_name.replace(/\W/g,"-")
 
   let session_name = workspace_name+"-"+name;
-  let conf = language_config(editor);
-  let launch = replace_wildcard(conf.launch,session_name);
-  if(launch.length > 0){ send_text(term,launch,conf.bracketedPasteMode); }
+  let launch = replace_wildcard(conf.launch, session_name);
+  if(launch.length > 0){ send_text(term,launch, conf.bracketedPasteMode); }
   let state: {[key: string]: string;} = context.workspaceState.get('terminal-map') || {};
 
-  state["file:"+file] = term.name;
+  state["file:"+file+"|id:"+languageId] = term.name;
   if(!state["lang:"+languageId]){ state["lang:"+languageId] = term.name; }
   context.workspaceState.update('terminal-map',state);
 
@@ -131,8 +132,8 @@ function get_terminal(context: vscode.ExtensionContext,
 
   let state: {[key: string]: string;} = context.workspaceState.get('terminal-map') || {};
 
-  let languageId = editor.document.languageId;
-  let terminal_name = (file ? state["file:"+file] : undefined) ||
+  let languageId = get_editor_languageId(editor);
+  let terminal_name = (file ? state["file:"+file+"|id:"+languageId] : undefined) ||
     state["lang:"+languageId];
 
   if(terminal_name !== undefined){
@@ -161,16 +162,17 @@ function platform<T>(x: T | PlatformSpecific<T> | undefined): T | undefined {
   }
 }
 
-function language_config(editor: vscode.TextEditor): TermLanguageConfig{
+function language_config(editor: vscode.TextEditor, lang?: string): TermLanguageConfig{
   let config = vscode.workspace.getConfiguration("terminal-polyglot",
-    editor.document)
+    lang ? {languageId: lang, uri: editor.document.uri} : editor.document)
 
   return {
     cd: def(config?.get<string>("changeDirectoryCommand"), "cd \"%\""),
     run: def(config?.get<string>("runCommand"), "./\%\""),
     launch: def(config?.get<string>("launchCommand"), ""),
     bracketedPasteMode: def(platform(config?.get<boolean>("bracketedPasteMode")), false),
-    sendTextBlockCommand: def(config?.get<string>("sendTextBlockCommand"), "%")
+    sendTextBlockCommand: def(config?.get<string>("sendTextBlockCommand"), "%"),
+    codeFenceSyntax: def(config?.get<[string,string]>("codeFenceSyntax"), undefined)
   }
 }
 
@@ -183,6 +185,63 @@ function replace_wildcard(pattern: string,val: string) {
   return pattern.replace(wildcard,(_,prefix,match,suffix) => {
     return prefix+val+suffix;
   }).replace(escaped_wildcard,'%');
+}
+
+function get_editor_languageId(editor: vscode.TextEditor,
+                               conf: TermLanguageConfig = language_config(editor)): string {
+  if(!conf.codeFenceSyntax){
+    return editor.document.languageId
+  }else{
+    let start = new RegExp(conf.codeFenceSyntax[0]);
+    let stop = new RegExp(conf.codeFenceSyntax[1]);
+    let sel = editor.selection;
+    let lang = extractFence(editor.document, start, stop, sel.start, sel.end)
+    if(lang){
+      return lang;
+    }else{
+      return editor.document.languageId;
+    }
+  }
+}
+
+function extractFence(doc: vscode.TextDocument, start: RegExp, stop: RegExp,
+                      from: vscode.Position, to: vscode.Position){
+
+  let lang = "";
+  let line = from.line;
+  let text = doc.lineAt(line).text
+  while(true){
+    let match = start.exec(text)
+    if(match){
+      if(match.groups){
+        lang = match.groups['lang'];
+      }
+      break
+    }
+    if(stop.test(text)) return undefined
+    if(line > 0){
+      line -= 1;
+      text = doc.lineAt(line).text
+    }else{
+      break
+    }
+  }
+
+  line = to.line;
+  text = doc.lineAt(line).text
+  while(true){
+    if(stop.test(text)){
+      return lang
+    }
+    if(start.test(text)){
+      return undefined
+    }
+    if(line+1 < doc.lineCount){
+      line += 1;
+      text = doc.lineAt(line).text
+    }
+  }
+  return undefined
 }
 
 function get_term_languageId(terminal: vscode.Terminal){
@@ -198,6 +257,8 @@ let terminalChangeEvent: vscode.Disposable | undefined = undefined;
 // your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
 
+  // TODO: REMOVE ME
+  context.workspaceState.update('terminal-map', {})
   let config = vscode.workspace.getConfiguration("terminal-polyglot")
   if(config.get("language-config")){
     vscode.window.showErrorMessage("The new version of Terminal Polyglot does not use the"+
@@ -207,7 +268,6 @@ export function activate(context: vscode.ExtensionContext) {
 
   // Use the console to output diagnostic information (console.log) and errors (console.error)
 	// This line of code will only be executed once when your extension is activated
-  console.log('"terminal-polyglot" is now active!');
   let last_editor = vscode.window.activeTextEditor;
 
   vscode.window.onDidChangeActiveTextEditor(event => {
@@ -224,12 +284,12 @@ export function activate(context: vscode.ExtensionContext) {
         let state: {[key: string]: string;} =
           context.workspaceState.get('terminal-map') || {};
         if(last_editor){
-          let languageId = last_editor.document.languageId;
+          let languageId = get_editor_languageId(last_editor);
           let termLangId = get_term_languageId(terminal);
           if(termLangId && termLangId === languageId){
             let name = terminal.name;
             let uri = last_editor.document.uri;
-            if(uri){ state["file:"+uri.fsPath] = name; }
+            if(uri){ state["file:"+uri.fsPath+"|id:"+languageId] = name; }
           }
         }
       }
@@ -242,7 +302,7 @@ export function activate(context: vscode.ExtensionContext) {
 
   let command = vscode.commands.registerCommand('terminal-polyglot.next-terminal', () => {
     with_editor(editor => {
-      let languageId = editor.document.languageId;
+      let languageId = get_editor_languageId(editor);
       let terminal = get_terminal(context,editor,editor.document.fileName);
 
       let term_name = "";
@@ -259,7 +319,7 @@ export function activate(context: vscode.ExtensionContext) {
 
   command = vscode.commands.registerCommand('terminal-polyglot.previous-terminal', () => {
     with_editor(editor => {
-      let languageId = editor.document.languageId;
+      let languageId = get_editor_languageId(editor);
       let terminal = get_terminal(context,editor,editor.document.fileName);
 
       let term_name = "";
@@ -320,10 +380,10 @@ export function activate(context: vscode.ExtensionContext) {
 
   command = vscode.commands.registerCommand('terminal-polyglot.new-terminal', () => {
     with_editor(editor => {
-      let languageId = editor.document.languageId;
+      let languageId = get_editor_languageId(editor);
 
       let count = get_term_count_for(languageId)+1;
-      let terminal = create_terminal(context,editor,
+      let terminal = create_terminal(context, editor,
         editor.document.fileName, languageId+'-shell-'+count);
       if(terminal){ terminal.show(); }
     })
@@ -332,7 +392,7 @@ export function activate(context: vscode.ExtensionContext) {
 
   command = vscode.commands.registerCommand('terminal-polyglot.open-terminal-N', (args?: {index: Number}) => {
     with_editor(editor => {
-      let languageId = editor.document.languageId;
+      let languageId = get_editor_languageId(editor);
 
       let index = args?.index;
       if(index === undefined){

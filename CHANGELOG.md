@@ -1,6 +1,9 @@
 # Change Log
 All notable changes to the "terminal-polyglot" extension will be documented in this file.
 
+## [0.5.0]
+- **Feature**: Execute text inside a codefence (e.g. in markdown) in a terminal for the embedded langauge
+
 ## [0.4.3]
 - **Bufgix**: Downstream vulnterabilities
 
