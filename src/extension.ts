@@ -497,7 +497,7 @@ export function activate(context: vscode.ExtensionContext) {
 
   command = vscode.commands.registerCommand('terminal-polyglot.select-fence', () => {
     with_editor(editor => {
-      let range = get_code_fence(editor, true, true)
+      let range = get_code_fence(editor, true, false)
       if(range){
         editor.selection = new vscode.Selection(range.start, range.end)
       }
