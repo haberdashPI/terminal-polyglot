@@ -20,6 +20,8 @@ The commands include:
 * Send a command to change the directory to the current file's location (command `Terminal Polyglot: Change Directory`)
 * Send a command to run the entire file (command `Terminal Polyglot: Run File`).
 * Change directory to file location in a shell (command `Terminal Polyglot: Change Shell Directory`)
+* Send / select code inside a code fence
+* Move to / select the next / previous code fence
 
 The `Open Terminal...` command can also determine the terminal to open using an `index` argument. For example:
 

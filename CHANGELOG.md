@@ -2,7 +2,8 @@
 All notable changes to the "terminal-polyglot" extension will be documented in this file.
 
 ## [0.5.0]
-- **Feature**: Execute text inside a codefence (e.g. in markdown) in a terminal for the embedded langauge
+- **Feature**: Execute selected text inside a codefence (e.g. in markdown) in a terminal for the embedded langauge
+- **Feature**: Various selections/motions for codefences: move to next/prev, select next/prev, execute current
 
 ## [0.4.3]
 - **Bufgix**: Downstream vulnterabilities

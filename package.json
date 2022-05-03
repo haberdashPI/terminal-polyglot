@@ -25,7 +25,13 @@
     "onCommand:terminal-polyglot.global_cd",
     "onCommand:terminal-polyglot.cd-workspace",
     "onCommand:terminal-polyglot.global_cd-worrkspace",
-    "onCommand:terminal-polyglot.run"
+    "onCommand:terminal-polyglot.run",
+    "onCommand:terminal-polyglot.select-fence",
+    "onCommand:terminal-polyglot.send-fence",
+    "onCommand:terminal-polyglot.next-fence",
+    "onCommand:terminal-polyglot.prev-fence",
+    "onCommand:terminal-polyglot.next-fence-select",
+    "onCommand:terminal-polyglot.prev-fence-select"
   ],
   "main": "./out/extension.js",
   "contributes": {
@@ -120,6 +126,36 @@
       {
         "command": "terminal-polyglot.run",
         "title": "Run File",
+        "category": "Terminal Polyglot"
+      },
+      {
+        "title": "Select Current Code Fence",
+        "command": "terminal-polyglot.select-fence",
+        "category": "Terminal Polyglot"
+      },
+      {
+        "title": "Send Code Fence",
+        "command": "terminal-polyglot.send-fence",
+        "category": "Terminal Polyglot"
+      },
+      {
+        "title": "Go to Next Code Fence",
+        "command": "terminal-polyglot.next-fence",
+        "category": "Terminal Polyglot"
+      },
+      {
+        "title": "Go to Previous Code Fence",
+        "command": "terminal-polyglot.prev-fence",
+        "category": "Terminal Polyglot"
+      },
+      {
+        "title": "Select Next Code Fence",
+        "command": "terminal-polyglot.next-fence-select",
+        "category": "Terminal Polyglot"
+      },
+      {
+        "title": "Select Previous Code Fence",
+        "command": "terminal-polyglot.prev-fence-select",
         "category": "Terminal Polyglot"
       }
     ],

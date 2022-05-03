@@ -5,6 +5,7 @@ import * as path from 'path'
 import { TextDecoder } from 'util';
 import { EIDRM } from 'constants';
 import { once } from 'cluster';
+import { toEditorSettings } from 'typescript';
 
 interface TermLanguageConfig {
   cd: string;
@@ -187,6 +188,41 @@ function replace_wildcard(pattern: string,val: string) {
   }).replace(escaped_wildcard,'%');
 }
 
+function get_code_fence(editor: vscode.TextEditor, stayWithin: boolean, forward: boolean,
+                        sel: vscode.Selection = editor.selection,
+                        conf: TermLanguageConfig = language_config(editor)): vscode.Range | undefined {
+  if(!conf.codeFenceSyntax) return undefined
+  let start = new RegExp(conf.codeFenceSyntax[0]);
+  let stop = new RegExp(conf.codeFenceSyntax[1]);
+  let result = extractFence(editor.document, start, stop, sel.start, sel.end, stayWithin, forward)
+  // if the fence contains the current cursor position, we may need to move it further
+  if(!stayWithin){
+    if(result){
+      let startPos = new vscode.Position(result[1], 0)
+      let line = editor.document.lineAt(result[2])
+      let stopPos = new vscode.Position(line.lineNumber, line.range.end.character);
+      let firstRange = new vscode.Range(startPos, stopPos)
+      if(firstRange.contains(sel)){
+        if(forward && stopPos.line < editor.document.lineCount-1){
+          let pos = new vscode.Position(stopPos.line+1, 0)
+          result = extractFence(editor.document, start, stop, pos, pos, false, true)
+        }else if(!forward && startPos.line > 0){
+          let pos = new vscode.Position(startPos.line-1, 0)
+          result = extractFence(editor.document, start, stop, pos, pos, false, false)
+        }
+      }
+    }
+  }
+  if(result){
+    let startPos = new vscode.Position(result[1]+1, 0)
+    let line = editor.document.lineAt(result[2]-1)
+    let stopPos = new vscode.Position(line.lineNumber, line.range.end.character);
+    return new vscode.Range(startPos, stopPos)
+  }else{
+    return undefined
+  }
+}
+
 function get_editor_languageId(editor: vscode.TextEditor,
                                conf: TermLanguageConfig = language_config(editor)): string {
   if(!conf.codeFenceSyntax){
@@ -195,9 +231,9 @@ function get_editor_languageId(editor: vscode.TextEditor,
     let start = new RegExp(conf.codeFenceSyntax[0]);
     let stop = new RegExp(conf.codeFenceSyntax[1]);
     let sel = editor.selection;
-    let lang = extractFence(editor.document, start, stop, sel.start, sel.end)
-    if(lang){
-      return lang;
+    let result = extractFence(editor.document, start, stop, sel.start, sel.end)
+    if(result){
+      return result[0];
     }else{
       return editor.document.languageId;
     }
@@ -205,43 +241,56 @@ function get_editor_languageId(editor: vscode.TextEditor,
 }
 
 function extractFence(doc: vscode.TextDocument, start: RegExp, stop: RegExp,
-                      from: vscode.Position, to: vscode.Position){
+                      from: vscode.Position, to: vscode.Position, stayWithinBounds: boolean = true,
+                      forward: boolean = false): [string, number, number] | undefined {
 
   let lang = "";
   let line = from.line;
   let text = doc.lineAt(line).text
   while(true){
     let match = start.exec(text)
-    if(match){
+    if(stop.test(text)){
+      if(stayWithinBounds) return undefined
+      else forward = false
+    }
+    else if(match){
       if(match.groups){
         lang = match.groups['lang'];
       }
       break
     }
-    if(stop.test(text)) return undefined
-    if(line > 0){
+    if(!forward && line > 0){
       line -= 1;
+      text = doc.lineAt(line).text
+    }else if(forward && line+1 < doc.lineCount){
+      line += 1;
       text = doc.lineAt(line).text
     }else{
       break
     }
   }
+  if(!lang) return undefined
+  let startLine = line;
 
-  line = to.line;
+  line = stayWithinBounds ? to.line : line;
   text = doc.lineAt(line).text
   while(true){
     if(stop.test(text)){
-      return lang
+      return [lang, startLine, line]
     }
-    if(start.test(text)){
-      return undefined
-    }
+    if(stayWithinBounds && start.test(text)){ return undefined }
     if(line+1 < doc.lineCount){
       line += 1;
       text = doc.lineAt(line).text
+    }else{
+      break
     }
   }
-  return undefined
+  if(stayWithinBounds){
+    return undefined
+  }else{
+    return [lang, startLine, line]
+  }
 }
 
 function get_term_languageId(terminal: vscode.Terminal){
@@ -335,19 +384,23 @@ export function activate(context: vscode.ExtensionContext) {
 
   // Send commands, respecting the association between files and
   // particular terminals
-  function sendTextCommand(useBlock: boolean){
+  function sendTextCommand(useBlock: boolean, range?: vscode.Range){
     with_editor(editor => {
       let terminal = get_terminal(context,editor,editor.document.fileName);
-      let sel = editor.selection;
       let text = "";
-      if(sel.isEmpty){
-        if(editor.document.lineCount < sel.active.line){
-          text = editor.document.lineAt(sel.active.line-1).text;
+      let sel = editor.selection;
+      if(!range){
+        if(sel.isEmpty){
+          if(editor.document.lineCount < sel.active.line){
+            text = editor.document.lineAt(sel.active.line-1).text;
+          }else{
+            text = editor.document.lineAt(sel.active.line).text;
+          }
         }else{
-          text = editor.document.lineAt(sel.active.line).text;
+          text = editor.document.getText(sel);
         }
       }else{
-        text = editor.document.getText(sel);
+        text = editor.document.getText(range);
       }
       if(terminal){
         let conf = language_config(editor)
@@ -359,13 +412,15 @@ export function activate(context: vscode.ExtensionContext) {
         }
         terminal.show(true);
         let pos;
-        if(sel.isEmpty){
-          pos = new vscode.Position(sel.end.line+1,0);
-        }else{
-          pos = sel.active;
-        }
+        if(!range){
+          if(sel.isEmpty){
+            pos = new vscode.Position(sel.end.line+1,0);
+          }else{
+            pos = sel.active;
+          }
 
-        editor.selection = new vscode.Selection(pos,pos);
+          editor.selection = new vscode.Selection(pos,pos);
+        }
       }
     });
   }
@@ -429,6 +484,47 @@ export function activate(context: vscode.ExtensionContext) {
   });
   context.subscriptions.push(command);
 
+  command = vscode.commands.registerCommand('terminal-polyglot.send-fence',
+    () => {
+      with_editor(editor => {
+        let range = get_code_fence(editor, true, true)
+        if(range){
+          sendTextCommand(true, range)
+        }
+      })
+    });
+  context.subscriptions.push(command);
+
+  command = vscode.commands.registerCommand('terminal-polyglot.select-fence', () => {
+    with_editor(editor => {
+      let range = get_code_fence(editor, true, true)
+      if(range){
+        editor.selection = new vscode.Selection(range.start, range.end)
+      }
+    })
+  })
+  context.subscriptions.push(command)
+
+  function fences(forward: boolean, select: boolean){
+    return () => {
+      with_editor(editor => {
+        editor.selections = (<vscode.Selection[]>(editor.selections.map(sel => {
+          let range = get_code_fence(editor, false, forward, sel)
+          if(range){
+            return new vscode.Selection(range.start, select ? range.end : range.start)
+          }
+        }).filter(x => x)))
+      })
+    }
+  }
+  command = vscode.commands.registerCommand(`terminal-polyglot.next-fence`, fences(true, false))
+  context.subscriptions.push(command)
+  command = vscode.commands.registerCommand(`terminal-polyglot.prev-fence`, fences(false, false))
+  context.subscriptions.push(command)
+  command = vscode.commands.registerCommand(`terminal-polyglot.next-fence-select`, fences(true, true))
+  context.subscriptions.push(command)
+  command = vscode.commands.registerCommand(`terminal-polyglot.prev-fence-select`, fences(false, true))
+  context.subscriptions.push(command)
 
 	// Change directory, as if we were in a bash or DOS terminal
 	command = vscode.commands.registerCommand('terminal-polyglot.global_cd', () => {
