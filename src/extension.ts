@@ -125,7 +125,7 @@ function find_terminal(context: vscode.ExtensionContext,
 }
 
 function get_terminal(context: vscode.ExtensionContext,
-    editor: vscode.TextEditor,file: string): vscode.Terminal {
+    editor: vscode.TextEditor, file: string): vscode.Terminal {
 
   let state: {[key: string]: string;} = context.workspaceState.get('terminal-map') || {};
 
@@ -159,7 +159,7 @@ function platform<T>(x: T | PlatformSpecific<T> | undefined): T | undefined {
   }
 }
 
-function language_config(editor: vscode.TextEditor, lang?: string): TermLanguageConfig{
+function language_config(editor: vscode.TextEditor, lang: string | undefined): TermLanguageConfig{
   let config = vscode.workspace.getConfiguration("terminal-polyglot",
     lang ? {languageId: lang, uri: editor.document.uri} : editor.document)
 
@@ -186,7 +186,7 @@ function replace_wildcard(pattern: string,val: string) {
 
 function get_code_fence(editor: vscode.TextEditor, stayWithin: boolean, forward: boolean,
                         sel: vscode.Selection = editor.selection,
-                        conf: TermLanguageConfig = language_config(editor)): vscode.Range | undefined {
+                        conf: TermLanguageConfig = language_config(editor, undefined)): vscode.Range | undefined {
   if(!conf.codeFenceSyntax) return undefined
   let start = new RegExp(conf.codeFenceSyntax[0]);
   let stop = new RegExp(conf.codeFenceSyntax[1]);
@@ -220,7 +220,7 @@ function get_code_fence(editor: vscode.TextEditor, stayWithin: boolean, forward:
 }
 
 function get_editor_languageId(editor: vscode.TextEditor,
-                               conf: TermLanguageConfig = language_config(editor)): string {
+                               conf: TermLanguageConfig = language_config(editor, undefined)): string {
   if(!conf.codeFenceSyntax){
     return editor.document.languageId
   }else{
@@ -382,7 +382,7 @@ export function activate(context: vscode.ExtensionContext) {
   // particular terminals
   function sendTextCommand(useBlock: boolean, range?: vscode.Range){
     with_editor(editor => {
-      let terminal = get_terminal(context,editor,editor.document.fileName);
+      let terminal = get_terminal(context, editor, editor.document.fileName);
       let text = "";
       let sel = editor.selection;
       if(!range){
@@ -399,7 +399,7 @@ export function activate(context: vscode.ExtensionContext) {
         text = editor.document.getText(range);
       }
       if(terminal){
-        let conf = language_config(editor)
+        let conf = language_config(editor, get_term_languageId(terminal))
         if(useBlock){
           let pattern = conf.sendTextBlockCommand;
           send_text(terminal,replace_wildcard(pattern,text),conf.bracketedPasteMode);
@@ -545,7 +545,7 @@ export function activate(context: vscode.ExtensionContext) {
       with_file_path(editor, file => {
         let dir = path.dirname(file);
         dir = dir.replace("\\","\\\\");
-        let conf = language_config(editor)
+        let conf = language_config(editor, get_editor_languageId(editor))
         let pattern = conf.cd;
         let terminal = get_terminal(context,editor,file);
         if(terminal){
@@ -562,7 +562,7 @@ export function activate(context: vscode.ExtensionContext) {
         let dir = vscode.workspace.rootPath
         if(dir){
           dir = dir.replace("\\","\\\\");
-          let conf = language_config(editor);
+          let conf = language_config(editor, get_editor_languageId(editor));
           let pattern = conf.cd;
           let terminal = get_terminal(context,editor,file);
           if(terminal){
@@ -595,7 +595,7 @@ export function activate(context: vscode.ExtensionContext) {
   command = vscode.commands.registerCommand('terminal-polyglot.run', () => {
     with_editor(editor => {
       with_file_path(editor, file => {
-        let conf = language_config(editor);
+        let conf = language_config(editor, get_editor_languageId(editor));
         let pattern = conf.run;
         file = file.replace("\\","\\\\");
         let terminal = get_terminal(context,editor,file);
