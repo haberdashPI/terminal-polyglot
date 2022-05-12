@@ -1,6 +1,6 @@
 # Terminal Polyglot
 
-This extension provides a set of commands for sending text to a terminal
+This extension provides a set of commands for sending text to an integrated terminal
 specific to the programming language of the current file (or code fence). It associates each
 file with a language-specific terminal instance: any command you issue through
 the extension is sent to that terminal.
@@ -56,7 +56,7 @@ set to `true` (e.g. `ipython`).
   in how it is run or displayed in the REPL.
 - `codeFenceSyntax` - some langauges (e.g. markdown) can contain code from another language;
 you can tell terminal polyglot to use a terminal for the embedded language by specifying
-a regex that parses the relevant code fence sytnax. This setting should contain an array with two strings. Tehse represent the regex for the starting and ending of a code fence. The first regex should have a named group called "lang" that serves as the langauge indentifier for this block of code. Any time the selected text is completely contained within a code fence, commands to send that text will be sent to the embedded language.
+a regex that parses the relevant code fence syntax. This setting should contain an array with two strings. These represent the regex for the starting and ending of a code fence. The first regex should have a named group called "lang" that serves as the langauge indentifier for this block of code. Any time the selected text is completely contained within a code fence, commands to send that text will be sent to the embedded language.
 
 As an example, here are the default settings.
 
