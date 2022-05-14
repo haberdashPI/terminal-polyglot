@@ -1,6 +1,9 @@
 # Change Log
 All notable changes to the "terminal-polyglot" extension will be documented in this file.
 
+## [0.5.2]
+- **Cleanup**: Improved metadata for `codeFenceSyntax`.
+
 ## [0.5.1]
 - **Bugfix**: Sending code within a code fence now leverages the fenced language settings rather than the host language.
 

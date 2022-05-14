@@ -198,6 +198,12 @@
           "description": "The language-speceific REPL command to change directories.",
           "scope": "language-overridable",
           "default": "%"
+        },
+        "terminal-polyglot.codeFenceSyntax": {
+          "type": "array",
+          "description": "The language-specific syntax for the start and end of a code fence.",
+          "scope": "language-overridable",
+          "default": []
         }
       }
     },
@@ -210,7 +216,7 @@
       },
       "[markdown]": {
         "terminal-polyglot.codeFenceSyntax": [
-          "^```(\\{\\.?)?(?<lang>\\w*)?(.*\\})?\\s*$",
+          "^```(\\{\\.?)?(?<lang>[\\w_-]+)?.*\\}?\\s*$",
           "^```\\s*$"
         ]
       },
