@@ -166,3 +166,5 @@ following settings:
 
 I use this extension on daily basis, so it should be working well. Please feel free to
 report any issues on the github repository.
+
+There is a [known issue](https://github.com/haberdashPI/terminal-polyglot/issues/7) where tab characters are not properly sent to the terminal on windows.
