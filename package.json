@@ -230,7 +230,7 @@
         "terminal-polyglot.runCommand": "include(\"%\")",
         "terminal-polyglot.changeDirectoryCommand": "cd(\"%\")",
         "terminal-polyglot.bracketedPasteMode": true,
-        "termianl-polyglot.sendTextBlockCommand": "begin; %; end"
+        "terminal-polyglot.sendTextBlockCommand": "begin; %; end"
       },
       "[ruby]": {
         "terminal-polyglot.launchCommand": "irb",
