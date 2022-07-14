@@ -1,6 +1,9 @@
 # Change Log
 All notable changes to the "terminal-polyglot" extension will be documented in this file.
 
+## [0.5.3]
+- **Bugfix**: Fix typo in julia's default settings
+
 ## [0.5.2]
 - **Cleanup**: Improved metadata for `codeFenceSyntax`.
 
