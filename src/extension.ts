@@ -165,7 +165,7 @@ function language_config(editor: vscode.TextEditor, lang: string | undefined): T
 
   return {
     cd: def(config?.get<string>("changeDirectoryCommand"), "cd \"%\""),
-    run: def(config?.get<string>("runCommand"), "./\%\""),
+    run: def(config?.get<string>("runCommand"), "./%\""),
     launch: def(config?.get<string>("launchCommand"), ""),
     bracketedPasteMode: def(platform(config?.get<boolean>("bracketedPasteMode")), false),
     sendTextBlockCommand: def(config?.get<string>("sendTextBlockCommand"), "%"),
@@ -176,12 +176,24 @@ function language_config(editor: vscode.TextEditor, lang: string | undefined): T
 function replace_wildcard(pattern: string,val: string) {
   // the wildcard pattern is a single '%' with no neighboring '%'
   // this allows us to escape the wildcard character
-  let wildcard = /([^%]|^)(%)([^%]|$)/;
+  let wildcard = /(?<!%)%(?!%)/;
   let escaped_wildcard = /%%/;
 
-  return pattern.replace(wildcard,(_,prefix,match,suffix) => {
-    return prefix+val+suffix;
-  }).replace(escaped_wildcard,'%');
+  return pattern.replace(wildcard, val).replace(escaped_wildcard, '%');
+}
+
+function replace_wildcard_ids(pattern: string, ids: { [key :string]: string }){
+  // the wildcard pattern is a single '%' with no neighboring '%'
+  // this allows us to escape the wildcard character
+  for (let [key, value] of Object.entries(ids)) {
+    if (!key.match(/^[_a-zA-Z]+[_\w]*$/)) {
+      vscode.window.showErrorMessage(`Invalid wildcard identifier '${key}'`);
+    }
+    let wildcard = new RegExp(`(?<!%)%${key}%(?!%)`);
+    pattern = pattern.replace(wildcard, value);
+  }
+  let escaped_wildcard = /%%/;
+  return pattern.replace(escaped_wildcard, '%')
 }
 
 function get_code_fence(editor: vscode.TextEditor, stayWithin: boolean, forward: boolean,
@@ -302,7 +314,6 @@ let terminalChangeEvent: vscode.Disposable | undefined = undefined;
 // your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
 
-  // TODO: REMOVE ME
   context.workspaceState.update('terminal-map', {})
   let config = vscode.workspace.getConfiguration("terminal-polyglot")
   if(config.get("language-config")){
@@ -311,14 +322,10 @@ export function activate(context: vscode.ExtensionContext) {
       "(See the [README.md](https://github.com/haberdashPI/terminal-polyglot/blob/master/README.md))");
   }
 
-  // Use the console to output diagnostic information (console.log) and errors (console.error)
-	// This line of code will only be executed once when your extension is activated
   let last_editor = vscode.window.activeTextEditor;
 
   vscode.window.onDidChangeActiveTextEditor(event => {
     last_editor = vscode.window.activeTextEditor || last_editor;
-    // TODO: change the last active terminal (without making
-    // panel visible if it is hidden)
   });
 
   // changing to the active terminal also changes the terminal associated with
@@ -555,11 +562,14 @@ export function activate(context: vscode.ExtensionContext) {
       });
     });
   });
+  context.subscriptions.push(command);
 
   command = vscode.commands.registerCommand('terminal-polyglot.cd-workspace', () => {
     with_editor(editor => {
       with_file_path(editor, file => {
-        let dir = vscode.workspace.rootPath
+        let folders = vscode.workspace.workspaceFolders
+        if(!folders || folders.length == 0){ return }
+        let dir = folders[1].uri.toString()
         if(dir){
           dir = dir.replace("\\","\\\\");
           let conf = language_config(editor, get_editor_languageId(editor));
@@ -573,6 +583,28 @@ export function activate(context: vscode.ExtensionContext) {
       });
     })
   });
+  context.subscriptions.push(command);
+
+  command = vscode.commands.registerCommand('terminal-polyglot.send-command', (args?: {cmd: string}) => {
+    if(!args?.cmd){
+      vscode.window.showErrorMessage("Empty command string");
+    }
+    with_editor(editor => {
+      with_file_path(editor, file => {
+        let folders = vscode.workspace.workspaceFolders
+        let dir = (!folders || folders.length == 0) ? "" : folders[1]?.uri.toString()
+        let conf = language_config(editor, get_editor_languageId(editor));
+        let terminal = get_terminal(context,editor,file);
+        if(terminal){
+          send_text(terminal,replace_wildcard_ids(args?.cmd || "", {
+            'file': file,
+            'workspace': dir
+          }), conf.bracketedPasteMode)
+        }
+      })
+    })
+  });
+  context.subscriptions.push(command);
 
   command = vscode.commands.registerCommand('terminal-polyglot.global_cd-workspace', () => {
     with_editor(editor => {
@@ -591,6 +623,7 @@ export function activate(context: vscode.ExtensionContext) {
       });
     })
   });
+  context.subscriptions.push(command);
 
   command = vscode.commands.registerCommand('terminal-polyglot.run', () => {
     with_editor(editor => {
@@ -606,6 +639,7 @@ export function activate(context: vscode.ExtensionContext) {
       });
     });
   });
+  context.subscriptions.push(command);
 }
 
 // this method is called when your extension is deactivated

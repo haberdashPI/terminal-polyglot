@@ -24,6 +24,7 @@
     "onCommand:terminal-polyglot.cd",
     "onCommand:terminal-polyglot.global_cd",
     "onCommand:terminal-polyglot.cd-workspace",
+    "onCommand:terminal-polyglot.send-command",
     "onCommand:terminal-polyglot.global_cd-worrkspace",
     "onCommand:terminal-polyglot.run",
     "onCommand:terminal-polyglot.select-fence",
@@ -121,6 +122,11 @@
       {
         "command": "terminal-polyglot.global_cd-workspace",
         "title": "Change to Workspace Directory in shell",
+        "category": "Terminal Polyglot"
+      },
+      {
+        "command": "terminal-polyglot.send-command",
+        "title": "Send user specified command...",
         "category": "Terminal Polyglot"
       },
       {
@@ -276,7 +282,7 @@
     "@typescript-eslint/parser": "^2.26.0",
     "eslint": "^6.8.0",
     "glob": "^7.1.6",
-    "mocha": "^7.1.1",
+    "mocha": "^10.2.0",
     "typescript": "^3.8.3"
   },
   "dependencies": {
