@@ -22,6 +22,7 @@ The commands include:
 * Change directory to file location in a shell (command `Terminal Polyglot: Change Shell Directory`)
 * Send / select code inside a code fence
 * Move to / select the next / previous code fence
+* Send an arbitrary command to the terminal (see details below)
 
 The `Open Terminal...` command can also determine the terminal to open using an `index` argument. For example:
 
@@ -31,6 +32,21 @@ The `Open Terminal...` command can also determine the terminal to open using an 
     "args": { "index": 2 },
     "key": "shift+cmd+2",
     "when": "editorTextFocus"
+}
+```
+
+The command `terminal-polyglot.send-command` must be passed the argument `cmd`,
+and can be used in a keybinding to send any command you want to the terminal.
+It has two available wild cards:
+
+- `%file%`: Which will be replaced with the currently active file
+- `%worksapce%`: Which will be replaced with the currently active workspace folder
+
+```json
+{
+  "command": "terminal-polyglot.send-command",
+  "args": { "cmd": "foobar(\"%file%\")" },
+  "when": "editorLangId == 'javascript'"
 }
 ```
 

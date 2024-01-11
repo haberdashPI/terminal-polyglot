@@ -1,6 +1,9 @@
 # Change Log
 All notable changes to the "terminal-polyglot" extension will be documented in this file.
 
+## [0.6.0]
+- **Feature**: Execute arbitrary commands with `terminal-polyglot.send-command`
+
 ## [0.5.3]
 - **Bugfix**: Fix typo in julia's default settings
 

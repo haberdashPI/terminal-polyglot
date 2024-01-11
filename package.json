@@ -125,11 +125,6 @@
         "category": "Terminal Polyglot"
       },
       {
-        "command": "terminal-polyglot.send-command",
-        "title": "Send user specified command...",
-        "category": "Terminal Polyglot"
-      },
-      {
         "command": "terminal-polyglot.run",
         "title": "Run File",
         "category": "Terminal Polyglot"
