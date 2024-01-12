@@ -600,6 +600,7 @@ export function activate(context: vscode.ExtensionContext) {
             'file': file,
             'workspace': dir
           }), conf.bracketedPasteMode)
+          terminal.show()
         }
       })
     })
