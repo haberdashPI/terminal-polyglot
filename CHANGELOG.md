@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to the "terminal-polyglot" extension will be documented in this file.
 
+## [0.6.1]
+- **Small Feature**: `terminal-polyglot.open-terminal-N` has a new argument, `focus`
+when defaults to true, and determines if focus moves to the open terminal
+
 ## [0.6.0]
 - **Feature**: Execute arbitrary commands with `terminal-polyglot.send-command`
 

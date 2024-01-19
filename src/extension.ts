@@ -448,7 +448,8 @@ export function activate(context: vscode.ExtensionContext) {
   });
   context.subscriptions.push(command);
 
-  command = vscode.commands.registerCommand('terminal-polyglot.open-terminal-N', (args?: {index: Number}) => {
+  command = vscode.commands.registerCommand('terminal-polyglot.open-terminal-N', (args?: {index: Number, focus?: boolean}) => {
+    let focus = (args?.focus !== undefined ? args?.focus : true);
     with_editor(editor => {
       let languageId = get_editor_languageId(editor);
 
@@ -467,13 +468,13 @@ export function activate(context: vscode.ExtensionContext) {
             index = Number(entry);
             let terminal = find_terminal(context,editor,
               editor.document.fileName, languageId+'-shell-'+index);
-            if(terminal){ terminal.show(); }
+            if(terminal){ terminal.show(!focus); }
           }
         });
       }else{
         let terminal = find_terminal(context,editor,
           editor.document.fileName, languageId+'-shell-'+index);
-        if(terminal){ terminal.show(); }
+        if(terminal){ terminal.show(!focus); }
       }
     });
   });
